@@ -7,11 +7,11 @@ const shiftSchema = new mongoose.Schema(
       required: true,
     },
     startTime: {
-      type: String, // Stored as "HH:mm" (24-hour format)
+      type: String,
       required: true,
     },
     endTime: {
-      type: String, // Stored as "HH:mm"
+      type: String,
       required: true,
     },
   },

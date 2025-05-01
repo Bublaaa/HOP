@@ -99,7 +99,7 @@ export const updateOutpost = async (req, res) => {
       longitude,
     });
 
-    res.status(200).json({
+    res.status(201).json({
       success: true,
       message: "Outpost updated successfully",
       outpost: updatedOutpost,
