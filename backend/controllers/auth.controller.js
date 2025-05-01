@@ -4,10 +4,10 @@ import crypto from "crypto";
 import generateTokenAndSetCookie from "../utils/generateTokenAndSetCookie.js";
 
 export const signup = async (req, res) => {
-  const { email, password, fistName, middleName, lastName, position } =
+  const { email, password, firstName, middleName, lastName, position } =
     req.body;
   try {
-    if (!email || !password || !name) {
+    if (!email || !password || !firstName || !lastName) {
       throw new Error("All fields are required");
     }
 
@@ -22,7 +22,7 @@ export const signup = async (req, res) => {
     const user = new User({
       email,
       password: hashedPassword,
-      fistName,
+      firstName,
       middleName,
       lastName,
       position,
