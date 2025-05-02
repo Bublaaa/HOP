@@ -37,19 +37,6 @@ export const getShiftDetail = async (req, res) => {
   }
 };
 // * * CREATE
-const formatTime = (dateString) => {
-  const date = new Date(dateString);
-  if (isNaN(date.getTime())) {
-    return "Invalid Date";
-  }
-
-  return date.toLocaleString("en-US", {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  });
-};
-
 export const createShift = async (req, res) => {
   let { name, startTime, endTime } = req.body;
   name = name.toLowerCase();
@@ -92,7 +79,7 @@ export const updateShift = async (req, res) => {
   endTime = formatTime(endTime);
   try {
     if (!name || !startTime || !endTime) {
-      return res.status(404).json({
+      return res.status(400).json({
         success: false,
         message: "Shift name & time range is required",
       });
@@ -103,12 +90,12 @@ export const updateShift = async (req, res) => {
         .status(404)
         .json({ success: false, message: "Shift not found" });
     }
-    const isNameExist = await Shift.findOne({
+    const isDuplicate = await Shift.findOne({
       name: name,
       _id: { $ne: id }, // Exclude the current shift from the check
     });
 
-    if (isNameExist) {
+    if (isDuplicate) {
       return res
         .status(400)
         .json({ success: false, message: "Shift name already exists" });
@@ -153,4 +140,18 @@ export const deleteShift = async (req, res) => {
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
+};
+
+// * * Utils Function
+const formatTime = (dateString) => {
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) {
+    return "Invalid Date";
+  }
+
+  return date.toLocaleString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
 };
