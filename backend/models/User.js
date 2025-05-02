@@ -30,6 +30,7 @@ const userSchema = new mongoose.Schema(
     position: {
       type: String,
       enum: ["security", "outpost", "admin"],
+      required: true,
     },
   },
   { timestamps: true }
