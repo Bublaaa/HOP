@@ -83,14 +83,15 @@ export const createSchedule = async (req, res) => {
 };
 // * * UPDATE
 export const updateSchedule = async (req, res) => {
-  const { id } = req.params;
   const { userId, outpostId, shiftId, date } = req.body;
+  const { id } = req.params;
   try {
     if (!userId || !outpostId || !shiftId || !date) {
       return res
         .status(400)
         .json({ success: false, message: "All fields are required" });
     }
+    await checkValidId(userId, outpostId, shiftId);
     const isScheduleExist = await Schedule.findById(id);
     if (!isScheduleExist) {
       return res
@@ -107,23 +108,23 @@ export const updateSchedule = async (req, res) => {
     if (isDuplicate) {
       return res
         .status(400)
-        .json({ success: false, message: "Schedule is already exist" });
+        .json({ success: false, message: "Schedule already exists" });
     }
-    const updatedSchedule = await Schedule.findByIdAndUpdate(id, {
-      userId: userId,
-      outpostId: outpostId,
-      shiftId: shiftId,
-      date: date,
-    });
-    res.status(201).json({
+    const updatedSchedule = await Schedule.findByIdAndUpdate(
+      id,
+      { userId, outpostId, shiftId, date },
+      { new: true }
+    );
+    res.status(200).json({
       success: true,
-      message: "Success update schedule",
-      schedule: updateSchedule,
+      message: "Successfully updated schedule",
+      schedule: updatedSchedule,
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    return res.status(500).json({ success: false, message: error.message });
   }
 };
+
 // * * DELETE
 export const deleteSchedule = async (req, res) => {
   const { id } = req.params;

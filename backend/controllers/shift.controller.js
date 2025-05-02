@@ -40,8 +40,6 @@ export const getShiftDetail = async (req, res) => {
 export const createShift = async (req, res) => {
   let { name, startTime, endTime } = req.body;
   name = name.toLowerCase();
-  startTime = formatTime(startTime);
-  endTime = formatTime(endTime);
   try {
     if (!name || !startTime || !endTime) {
       return res.status(404).json({
@@ -75,8 +73,6 @@ export const updateShift = async (req, res) => {
   const { id } = req.params;
   let { name, startTime, endTime } = req.body;
   name = name.toLowerCase();
-  startTime = formatTime(startTime);
-  endTime = formatTime(endTime);
   try {
     if (!name || !startTime || !endTime) {
       return res.status(400).json({

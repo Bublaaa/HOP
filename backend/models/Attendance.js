@@ -8,27 +8,35 @@ const attendanceSchema = new mongoose.Schema(
       required: true,
     },
     clockIn: {
-      type: Date, // HH:mm:ss format
+      type: Date,
+      required: true, // HH:mm:ss format
     },
     clockOut: {
       type: Date, // HH:mm:ss format
     },
-    inReport: {
+    report: {
       type: String,
+      // required: true,
     },
-    outReport: {
-      type: String,
+    latitudeIn: {
+      type: Number,
+      required: true,
     },
-    latitude: {
+    longitudeIn: {
+      type: Number,
+      required: true,
+    },
+    latitudeOut: {
       type: Number,
     },
-    longitude: {
+    longitudeOut: {
       type: Number,
     },
     status: {
       type: String,
       enum: ["early", "on time", "late", "absent", "invalid", "empty"],
       default: "empty",
+      required: true,
     },
   },
   { timestamps: true }
