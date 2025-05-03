@@ -5,11 +5,11 @@ import generateTokenAndSetCookie from "../utils/generateTokenAndSetCookie.js";
 export const signup = async (req, res) => {
   const { email, password, firstName, middleName, lastName, position } =
     req.body;
+  console.log(req.body);
   try {
-    if (!email || !password || !firstName || !lastName) {
+    if (!email || !password || !firstName || !lastName || !position) {
       throw new Error("All fields are required");
     }
-
     const userAlreadyExists = await User.findOne({ email });
     if (userAlreadyExists) {
       return res

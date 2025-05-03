@@ -30,6 +30,7 @@ const ProtectedRoute = ({ children, requiredRole }) => {
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
+
   if (requiredRole && user.position !== requiredRole) {
     // Prevent unnecessary redirects if already on the correct route
     if (user.position === "security" && location.pathname !== "/security") {
@@ -46,21 +47,26 @@ const ProtectedRoute = ({ children, requiredRole }) => {
       return <Navigate to="/admin" replace />;
     }
   }
-
   return children;
 };
 
 // Redirect to user page based on user position
 const RedirectAuthenticatedUser = ({ children }) => {
   const { isAuthenticated, user } = useAuthStore();
-
   if (isAuthenticated) {
-    return <Navigate to="/" replace />;
+    switch (user.position) {
+      case "admin":
+        return <Navigate to="/admin" replace />;
+      case "outpost":
+        return <Navigate to="/outpost" replace />;
+      case "security":
+        return <Navigate to="/security" replace />;
+      default:
+        return <Navigate to="/login" replace />;
+    }
   }
-
   return children;
 };
-
 function App() {
   const { isCheckingAuth, checkAuth } = useAuthStore();
   useEffect(() => {
@@ -72,65 +78,27 @@ function App() {
   return (
     <div className="h-screen w-full bg-white-shadow flex items-center justify-center overflow-hidden">
       <Routes>
+        {/* <Route path="/" element={<RedirectToRoleBasedDashboard />} /> */}
+
         {/*  Admin Routes  * */}
         <Route
           path="/admin"
           element={
             <ProtectedRoute requiredRole="admin">
-              <Suspense>
+              <Suspense fallback={<LoadingSpinner />}>
                 <AdminDashboard />
               </Suspense>
             </ProtectedRoute>
           }
         >
           <Route
-            path="/signup"
+            path="signup"
             element={
               <Suspense>
                 <SignUpPage />
               </Suspense>
             }
           />
-          {/* <Route
-            path="overview"
-            element={
-              <Suspense>
-                <OverviewPage />
-              </Suspense>
-            }
-          />
-          <Route
-            path="orders"
-            element={
-              <Suspense>
-                <OrderPage />
-              </Suspense>
-            }
-          />
-          <Route
-            path="orders/:id"
-            element={
-              <Suspense>
-                <OrderDetailPage />
-              </Suspense>
-            }
-          />
-          <Route
-            path="product"
-            element={
-              <Suspense>
-                <ProductPage />
-              </Suspense>
-            }
-          />
-          <Route
-            path="product/:id"
-            element={
-              <Suspense>
-                <ProductDetailPage />
-              </Suspense>
-            }
-          /> */}
         </Route>
 
         {/* Outpost Routes */}
@@ -154,19 +122,7 @@ function App() {
               </Suspense>
             </ProtectedRoute>
           }
-        >
-          {/* <Route path="/" element={<Navigate to="/menu" replace />} />
-          <Route
-            path="menu"
-            index
-            element={
-              <Suspense>
-                <MenuPage />
-              </Suspense>
-            }
-          /> */}
-          {/* <Route path="profile" element={<TestPage />} /> */}
-        </Route>
+        ></Route>
         <Route
           path="/login"
           element={
@@ -176,7 +132,7 @@ function App() {
           }
         />
         {/* catch all routes */}
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
       <Toaster />
     </div>

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Mail, Lock, Loader } from "lucide-react";
 import { Input } from "../components/Input.jsx";
-import { Link } from "react-router-dom";
+// import { Link } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore.js";
 import Button from "../components/Button.jsx";
 
@@ -21,9 +21,9 @@ const LoginPage = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="max-w-md w-full bg-white backdrop-filter backdrop-blur-xl rounded-2xl shadow-xl overflow-hidden"
+      className="max-w-md w-full bg-white backdrop-filter backdrop-blur-xl rounded-2xl shadow-xl overflow-hidden mx-2"
     >
-      <div className="p-8">
+      <div className="md:p-8 p-5">
         <h2 className="mb-6 text-center bg-clip-text">Welcome Back</h2>
         <form className="space-y-5" onSubmit={handleLogin}>
           <Input
@@ -42,14 +42,14 @@ const LoginPage = () => {
             onChange={(e) => setPassword(e.target.value)}
           />
 
-          <div className="flex items-center mb-6">
+          {/* <div className="flex items-center mb-6">
             <Link
               to={"/forgot-password"}
               className="text-sm text-accent hover:underline"
             >
               Forgot password?
             </Link>
-          </div>
+          </div> */}
 
           {error && <p className="text-red-500 font-semibold mb-2"> {error}</p>}
           <Button
@@ -67,14 +67,14 @@ const LoginPage = () => {
           </Button>
         </form>
       </div>
-      <div className="px-8 py-4 bg-white-shadow  flex justify-center">
+      {/* <div className="px-8 py-4 bg-white-shadow  flex justify-center">
         <p className="text-sm text-gray-400">
           Don't have an account? {""}
           <Link to={"/signup"} className="text-accent hover:underline">
             Sign Up
           </Link>
         </p>
-      </div>
+      </div> */}
     </motion.div>
   );
 };

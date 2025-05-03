@@ -27,7 +27,7 @@ export const Input = ({
       onChange={onChange}
       className={`w-full border rounded-lg md:p-3 p-2 bg-white text-dark placeholder:text-sm 
         md:placeholder:text-base placeholder-gray-400 focus:ring-4 focus:outline-none transition no-spinner
-        ${Icon ? "pl-10" : ""} 
+        ${Icon ? "md:pl-10 pl-10" : "md:p-3 p-2"} 
         ${
           error
             ? "border-red-500 focus:ring-red-300"

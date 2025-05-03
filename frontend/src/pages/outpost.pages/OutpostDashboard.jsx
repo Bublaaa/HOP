@@ -9,7 +9,7 @@ const Dashboard = () => {
     logout();
   };
 
-  const links = sidebarLinks[user?.position] || [];
+  // const links = sidebarLinks[user?.position] || [];
 
   return (
     <div className="w-full flex flex-row h-screen">

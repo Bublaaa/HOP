@@ -1,26 +1,32 @@
 import { motion } from "framer-motion";
 import { Loader, Lock, Mail, User } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import { Input } from "../components/Input.jsx";
+import { Input, DropdownInput } from "../../components/Input.jsx";
 import { useState } from "react";
-import PasswordStrengthMeter from "../components/PasswordStrengthMeter";
-import { useAuthStore } from "../store/authStore";
-import Button from "../components/Button.jsx";
+// import PasswordStrengthMeter from "../components/PasswordStrengthMeter";
+import { useAuthStore } from "../../../store/authStore.js";
+import Button from "../../components/Button.jsx";
 
 const SignUpPage = () => {
-  const [name, setName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [middleName, setMiddleName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
+  const [position, setPosition] = useState("security");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
   const { signup, error, isLoading } = useAuthStore();
+  const positions = ["security", "outpost", "admin"].map((position) => ({
+    label: position.charAt(0).toUpperCase() + position.slice(1),
+    value: position,
+  }));
 
   const handleSignUp = async (e) => {
     e.preventDefault();
 
     try {
-      await signup(email, password, name);
-      navigate("/verify-email");
+      await signup(email, password, firstName, middleName, lastName, position);
     } catch (error) {
       console.log(error);
     }
@@ -39,9 +45,23 @@ const SignUpPage = () => {
           <Input
             icon={User}
             type="text"
-            placeholder="Full Name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            placeholder="Fist Name"
+            value={firstName}
+            onChange={(e) => setFirstName(e.target.value)}
+          />
+          <Input
+            icon={User}
+            type="text"
+            placeholder="Middle Name"
+            value={middleName}
+            onChange={(e) => setMiddleName(e.target.value)}
+          />
+          <Input
+            icon={User}
+            type="text"
+            placeholder="Last Name"
+            value={lastName}
+            onChange={(e) => setLastName(e.target.value)}
           />
           <Input
             icon={Mail}
@@ -49,6 +69,13 @@ const SignUpPage = () => {
             placeholder="Email Address"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+          />
+          <DropdownInput
+            label=""
+            name="position"
+            value={position}
+            options={positions}
+            onChange={(e) => setPosition(e.target.value)}
           />
           <Input
             icon={Lock}
@@ -58,7 +85,7 @@ const SignUpPage = () => {
             onChange={(e) => setPassword(e.target.value)}
           />
           {error && <p className="text-red-500 font-semibold mt-2">{error}</p>}
-          <PasswordStrengthMeter password={password} />
+          {/* <PasswordStrengthMeter password={password} /> */}
 
           <Button
             buttonSize="large"
@@ -75,14 +102,14 @@ const SignUpPage = () => {
           </Button>
         </form>
       </div>
-      <div className="px-8 py-4 bg-white-shadow flex justify-center">
+      {/* <div className="px-8 py-4 bg-white-shadow flex justify-center">
         <p className="text-sm text-gray-400">
           Already have an account?{" "}
           <Link to={"/login"} className="text-accent hover:underline">
             Login
           </Link>
         </p>
-      </div>
+      </div> */}
     </motion.div>
   );
 };
