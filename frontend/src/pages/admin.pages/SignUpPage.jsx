@@ -6,6 +6,7 @@ import { useState } from "react";
 // import PasswordStrengthMeter from "../components/PasswordStrengthMeter";
 import { useAuthStore } from "../../../store/authStore.js";
 import Button from "../../components/Button.jsx";
+import toast from "react-hot-toast";
 
 const SignUpPage = () => {
   const [firstName, setFirstName] = useState("");
@@ -24,9 +25,10 @@ const SignUpPage = () => {
 
   const handleSignUp = async (e) => {
     e.preventDefault();
-
     try {
       await signup(email, password, firstName, middleName, lastName, position);
+      toast.success("User created");
+      navigate(-1);
     } catch (error) {
       console.log(error);
     }
@@ -63,20 +65,23 @@ const SignUpPage = () => {
             value={lastName}
             onChange={(e) => setLastName(e.target.value)}
           />
-          <Input
-            icon={Mail}
-            type="email"
-            placeholder="Email Address"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <DropdownInput
-            label=""
-            name="position"
-            value={position}
-            options={positions}
-            onChange={(e) => setPosition(e.target.value)}
-          />
+
+          <div className="grid grid-cols-2 gap-5">
+            <Input
+              icon={Mail}
+              type="email"
+              placeholder="Email Address"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+            <DropdownInput
+              label=""
+              name="position"
+              value={position}
+              options={positions}
+              onChange={(e) => setPosition(e.target.value)}
+            />
+          </div>
           <Input
             icon={Lock}
             type="password"

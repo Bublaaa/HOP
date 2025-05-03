@@ -37,8 +37,8 @@ export const useAuthStore = create((set) => ({
         position,
       });
       set({
-        user: response.data.user,
-        isAuthenticated: true,
+        // user: response.data.user,
+        // isAuthenticated: false,
         isLoading: false,
       });
     } catch (error) {

@@ -5,7 +5,6 @@ import generateTokenAndSetCookie from "../utils/generateTokenAndSetCookie.js";
 export const signup = async (req, res) => {
   const { email, password, firstName, middleName, lastName, position } =
     req.body;
-  console.log(req.body);
   try {
     if (!email || !password || !firstName || !lastName || !position) {
       throw new Error("All fields are required");
@@ -26,11 +25,8 @@ export const signup = async (req, res) => {
       lastName,
       position,
     });
-
-    generateTokenAndSetCookie(res, user._id);
-
+    // generateTokenAndSetCookie(res, user._id);
     await user.save();
-
     res.status(201).json({
       success: true,
       message: "User cerated successfully",

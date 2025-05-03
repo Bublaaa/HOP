@@ -1,25 +1,23 @@
 import { useAuthStore } from "../../../store/authStore.js";
 import { Outlet } from "react-router-dom";
-// import Sidebar from "../components/Sidebar/Sidebar.jsx";
-// import sidebarLinks from "../constants/sidebarLinks.js";
+import sidebarLinks from "../../constants/sidebarLinks.js";
+import MenuLink from "../../components/MenuLink.jsx";
 
-const Dashboard = () => {
-  const { user, logout } = useAuthStore();
-  const handleLogout = () => {
-    logout();
-  };
-
-  // const links = sidebarLinks[user?.position] || [];
-
+const OutpostDashboard = () => {
+  const { user } = useAuthStore();
+  const links = sidebarLinks[user?.position] || [];
   return (
-    <div className="w-full flex flex-row h-screen">
-      <h1>Outpost Dashboard</h1>
-      {/* <Sidebar links={links} /> */}
-      <div className="flex-grow overflow-auto w-5/6 scrollbar-hidden">
+    <div className="w-full flex flex-col space-y-5 h-screen items-end">
+      {/* CONTENT */}
+      <div className="flex items-start justify-center w-full overflow-y-auto scrollbar-hidden py-10 ">
         <Outlet />
+      </div>
+      {/* NAVIGATION */}
+      <div className="max-w-md w-full mx-auto h-fit">
+        <MenuLink links={links} />
       </div>
     </div>
   );
 };
 
-export default Dashboard;
+export default OutpostDashboard;
