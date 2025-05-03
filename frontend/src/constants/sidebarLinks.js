@@ -11,7 +11,7 @@ const sidebarLinks = {
   admin: [
     { label: "Overview", icon: "BarChart", href: "/admin/overview" },
     { label: "Schedule", icon: "CalendarSync", href: "/admin/schedule" },
-    { label: "Users", icon: "Users", href: "/admin/signup" },
+    { label: "Users", icon: "Users", href: "/admin/users" },
     { label: "Attendance", icon: "BookUser", href: "/admin/schedule" },
   ],
 };

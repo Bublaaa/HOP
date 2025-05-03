@@ -21,6 +21,7 @@ const SecurityDashboard = lazy(() =>
 );
 
 const SignUpPage = lazy(() => import("./pages/admin.pages/SignUpPage.jsx"));
+const UsersPage = lazy(() => import("./pages/admin.pages/UsersPage.jsx"));
 
 // Protect routes that require authentication
 const ProtectedRoute = ({ children, requiredRole }) => {
@@ -91,6 +92,14 @@ function App() {
             </ProtectedRoute>
           }
         >
+          <Route
+            path="users"
+            element={
+              <Suspense>
+                <UsersPage />
+              </Suspense>
+            }
+          />
           <Route
             path="signup"
             element={
