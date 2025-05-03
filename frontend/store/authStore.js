@@ -17,7 +17,7 @@ export const useAuthStore = create((set) => ({
   isLoading: false,
   isCheckingAuth: true,
   message: null,
-
+  //** SIGN UP
   signup: async (email, password, firstName, lastName, middleName) => {
     set({ isLoading: true, error: null });
     try {
@@ -41,6 +41,7 @@ export const useAuthStore = create((set) => ({
       throw error;
     }
   },
+  //** LOGIN
   login: async (email, password) => {
     set({ isLoading: true, error: null });
     try {
@@ -62,7 +63,7 @@ export const useAuthStore = create((set) => ({
       throw error;
     }
   },
-
+  //** LOGOUT
   logout: async () => {
     set({ isLoading: true, error: null });
     try {
@@ -78,6 +79,7 @@ export const useAuthStore = create((set) => ({
       throw error;
     }
   },
+  //** CHECK AUTHENTICATION
   checkAuth: async () => {
     set({ isCheckingAuth: true, error: null });
     try {
@@ -91,6 +93,7 @@ export const useAuthStore = create((set) => ({
       set({ error: null, isCheckingAuth: false, isAuthenticated: false });
     }
   },
+  //** FETCH ALL
   fetchAllUsers: async () => {
     set({ isLoading: false, error: null });
     try {

@@ -22,7 +22,7 @@ export const useOutpostStore = create((set, get) => {
     error: null,
     isLoading: false,
     message: null,
-
+    //** GET ALL
     fetchOutposts: async () => {
       set({ isLoading: true, error: null });
       try {
@@ -32,7 +32,7 @@ export const useOutpostStore = create((set, get) => {
         handleError(error, "Error fetching outposts");
       }
     },
-
+    //** GET DETAIL
     fetchOutpostDetail: async (id) => {
       set({ isLoading: true, error: null });
       try {
@@ -42,7 +42,7 @@ export const useOutpostStore = create((set, get) => {
         handleError(error, "Error fetching outpost");
       }
     },
-
+    //** CREATE
     createOutpost: async (name, latitude, longitude) => {
       set({ isLoading: true, error: null });
       try {
@@ -58,7 +58,7 @@ export const useOutpostStore = create((set, get) => {
         handleError(error, "Error creating outpost");
       }
     },
-
+    //** UPDATE
     updateOutpost: async (id, name, latitude, longitude) => {
       set({ isLoading: true, error: null });
       try {
@@ -74,7 +74,7 @@ export const useOutpostStore = create((set, get) => {
         handleError(error, "Error updating outpost");
       }
     },
-
+    //** DELETE
     deleteOutpost: async (id) => {
       set({ isLoading: true, error: null });
       try {

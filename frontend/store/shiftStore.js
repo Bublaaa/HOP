@@ -22,7 +22,7 @@ export const useShiftStore = create((set, get) => {
     error: null,
     isLoading: false,
     message: null,
-
+    //** GET ALL
     fetchShifts: async () => {
       set({ isLoading: true, error: null });
       try {
@@ -32,6 +32,7 @@ export const useShiftStore = create((set, get) => {
         handleError(error, "Error fetching shifts");
       }
     },
+    //** GET DETAIL
     fetchShiftDetail: async (id) => {
       set({ isLoading: true, error: null });
       try {
@@ -41,7 +42,7 @@ export const useShiftStore = create((set, get) => {
         handleError(error, "Error fetching shift");
       }
     },
-
+    //** CREATE
     createShift: async (name, startTime, endTime) => {
       set({ isLoading: true, error: null });
       try {
@@ -57,7 +58,7 @@ export const useShiftStore = create((set, get) => {
         handleError(error, "Error creating shift");
       }
     },
-
+    //** UPDATE
     updateShift: async (id, name, startTime, endTime) => {
       set({ isLoading: true, error: null });
       try {
@@ -73,7 +74,7 @@ export const useShiftStore = create((set, get) => {
         handleError(error, "Error updating shift");
       }
     },
-
+    //** DELETE
     deleteShift: async (id) => {
       set({ isLoading: true, error: null });
       try {
