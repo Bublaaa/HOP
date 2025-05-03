@@ -9,12 +9,6 @@ const API_URL =
 
 axios.defaults.withCredentials = true;
 
-const handleError = (error, defaultMsg) => {
-  const message = error.response?.data?.message || defaultMsg;
-  set({ error: message, isLoading: false });
-  toast.error(message);
-};
-
 export const useOutpostStore = create((set, get) => {
   const handleError = (error, defaultMsg) => {
     const message = error.response?.data?.message || defaultMsg;
