@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { useOutpostStore } from "../../../store/outpostStore.js";
-import Button from "../../components/Button.jsx";
 import { Trash2, PenBoxIcon, Plus, Loader } from "lucide-react";
 import { toTitleCase } from "../../utils/toTitleCase.js";
 import { NavLink } from "react-router-dom";
 import { motion } from "framer-motion";
-import Modal from "../../components/Modal.jsx";
 import { DeleteConfirmationForm } from "../../components/DeleteConfirmationForm.jsx";
+import Button from "../../components/Button.jsx";
+import Modal from "../../components/Modal.jsx";
 
 const OutpostsPage = ({}) => {
   const { outposts, fetchOutposts, deleteOutpost, isLoading } =

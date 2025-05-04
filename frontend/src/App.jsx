@@ -3,11 +3,9 @@ import { Toaster } from "react-hot-toast";
 import { useAuthStore } from "../store/authStore.js";
 import { useEffect, lazy, Suspense } from "react";
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
+import { Loader } from "lucide-react";
 // ** PAGES
 import LoginPage from "./pages/LoginPage.jsx";
-
-// ** COMPONENTS
-import LoadingSpinner from "./components/LoadingSpinner.jsx";
 
 // ** LAZY IMPORT
 const AdminDashboard = lazy(() =>
@@ -91,7 +89,7 @@ function App() {
     checkAuth();
   }, [checkAuth]);
 
-  if (isCheckingAuth) return <LoadingSpinner />;
+  if (isCheckingAuth) return <Loader className="w-6h-6 animate-spin mx-auto" />;
 
   return (
     <div className="h-screen w-full bg-white-shadow flex items-center justify-center overflow-hidden">
@@ -103,7 +101,9 @@ function App() {
           path="/admin"
           element={
             <ProtectedRoute requiredRole="admin">
-              <Suspense fallback={<LoadingSpinner />}>
+              <Suspense
+                fallback={<Loader className="w-6h-6 animate-spin mx-auto" />}
+              >
                 <AdminDashboard />
               </Suspense>
             </ProtectedRoute>

@@ -2,8 +2,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useShiftStore } from "../../../store/shiftStore.js";
 import Button from "../../components/Button.jsx";
-import { Plus } from "lucide-react";
-import LoadingSpinner from "../../components/LoadingSpinner.jsx";
+import { Plus, Loader } from "lucide-react";
 import { Input, TimeInput } from "../../components/Input.jsx";
 import { motion } from "framer-motion";
 import { formatTime, formatTimeToUTC } from "../../utils/dateFormatter.js";
@@ -28,7 +27,7 @@ const ShiftsDetailPage = () => {
     }
   }, [shift]);
   if (isLoading) {
-    return <LoadingSpinner />;
+    return <Loader className="w-6h-6 animate-spin mx-auto" />;
   }
 
   const handleSubmit = async (e) => {
