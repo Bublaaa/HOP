@@ -1,9 +1,8 @@
 import { motion } from "framer-motion";
 import { Loader, Lock, Mail, User } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Input, DropdownInput } from "../../components/Input.jsx";
 import { useState } from "react";
-// import PasswordStrengthMeter from "../components/PasswordStrengthMeter";
 import { useAuthStore } from "../../../store/authStore.js";
 import Button from "../../components/Button.jsx";
 import toast from "react-hot-toast";

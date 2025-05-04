@@ -9,9 +9,10 @@ const API_URL =
 
 axios.defaults.withCredentials = true;
 
-export const useAuthStore = create((set) => ({
+export const useAuthStore = create((set, get) => ({
   user: null,
   users: [],
+  userDetail: null,
   isAuthenticated: false,
   error: null,
   isLoading: false,
@@ -115,6 +116,53 @@ export const useAuthStore = create((set) => ({
         isLoading: false,
       });
       toast.error(errorMessage);
+    }
+  },
+  //** FETCH Detail
+  fetchUserDetail: async (id) => {
+    set({ isLoading: false, error: null });
+    try {
+      const response = await axios.get(`${API_URL}auth/user/${id}`);
+      set({ isLoading: false, userDetail: response.data.user });
+    } catch (error) {
+      const errorMessage =
+        error.response?.data?.message || "Error adding new ingredients";
+      set({
+        error: errorMessage,
+        isLoading: false,
+      });
+      toast.error(errorMessage);
+    }
+  },
+  //** UPDATE USER
+  updateUser: async (id, email, firstName, middleName, lastName) => {
+    set({ isLoading: false, error: null });
+    try {
+      const response = await axios.put(`${API_URL}auth/update/${id}`, {
+        email,
+        firstName,
+        middleName,
+        lastName,
+      });
+      set({ isLoading: false, userDetail: response.data.user });
+      await get().fetchAllUsers();
+      // toast.success("Success update user detail");
+    } catch (error) {
+      set({ error: "Error logging out", isLoading: false });
+      throw error;
+    }
+  },
+  //** DELETE USER
+  deleteUser: async (id) => {
+    set({ isLoading: false, error: null });
+    try {
+      const response = await axios.delete(`${API_URL}auth/delete/${id}`);
+      set({ isLoading: false, userDetail: response.data.user });
+      await get().fetchAllUsers();
+      toast.success("Success delete account");
+    } catch (error) {
+      set({ error: "Error logging out", isLoading: false });
+      throw error;
     }
   },
 }));

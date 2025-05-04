@@ -10,7 +10,6 @@ import { NavLink } from "react-router-dom";
 import { formatTime } from "../../utils/dateFormatter.js";
 import Modal from "../../components/Modal.jsx";
 import { DeleteConfirmationForm } from "../../components/DeleteConfirmationForm.jsx";
-import { useNavigate } from "react-router-dom";
 
 const ShiftProgressBar = ({ startTime, endTime }) => {
   const start = dayjs(startTime);
@@ -53,7 +52,6 @@ const ShiftProgressBar = ({ startTime, endTime }) => {
 };
 
 const ShiftsPage = ({}) => {
-  const navigate = useNavigate();
   const { shifts, fetchShifts, isLoading, deleteShift } = useShiftStore();
   useEffect(() => {
     fetchShifts();

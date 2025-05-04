@@ -25,7 +25,7 @@ export const DeleteConfirmationForm = ({
       await onDelete(itemId);
       if (redirect) redirect();
     } catch (error) {
-      toast.error(`Failed to delete ${itemLabel}`);
+      // toast.error(`Failed to delete ${itemLabel}`);
     } finally {
       onClose(); // close the modal
     }
@@ -38,7 +38,7 @@ export const DeleteConfirmationForm = ({
     >
       <p className="select-none">
         Please type <span className="font-semibold">{itemName}</span> to confirm
-        deletion of this {itemLabel}.
+        deletion.
       </p>
       <Input
         type="text"

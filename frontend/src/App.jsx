@@ -29,6 +29,10 @@ const ShiftsDetailPage = lazy(() =>
 );
 const AddShiftPage = lazy(() => import("./pages/admin.pages/AddShiftPage.jsx"));
 
+const UserDetailPage = lazy(() =>
+  import("./pages/admin.pages/UserDetailPage.jsx")
+);
+
 // Protect routes that require authentication
 const ProtectedRoute = ({ children, requiredRole }) => {
   const { isAuthenticated, user } = useAuthStore();
@@ -103,6 +107,14 @@ function App() {
             element={
               <Suspense>
                 <UsersPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="user/:id"
+            element={
+              <Suspense>
+                <UserDetailPage />
               </Suspense>
             }
           />
