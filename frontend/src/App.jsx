@@ -22,18 +22,22 @@ const SecurityDashboard = lazy(() =>
 
 const SignUpPage = lazy(() => import("./pages/admin.pages/SignUpPage.jsx"));
 const UsersPage = lazy(() => import("./pages/admin.pages/UsersPage.jsx"));
+const UserDetailPage = lazy(() =>
+  import("./pages/admin.pages/UserDetailPage.jsx")
+);
+
 const OutpostsPage = lazy(() => import("./pages/admin.pages/OutpostsPage.jsx"));
 const AddOutpostPage = lazy(() =>
   import("./pages/admin.pages/AddOutpostPage.jsx")
 );
+const OutpostDetailPage = lazy(() =>
+  import("./pages/admin.pages/OutpostDetailPage.jsx")
+);
+
 const ShiftsPage = lazy(() => import("./pages/admin.pages/ShiftsPage.jsx"));
+const AddShiftPage = lazy(() => import("./pages/admin.pages/AddShiftPage.jsx"));
 const ShiftsDetailPage = lazy(() =>
   import("./pages/admin.pages/ShiftsDetailPage.jsx")
-);
-const AddShiftPage = lazy(() => import("./pages/admin.pages/AddShiftPage.jsx"));
-
-const UserDetailPage = lazy(() =>
-  import("./pages/admin.pages/UserDetailPage.jsx")
 );
 
 // Protect routes that require authentication
@@ -134,6 +138,14 @@ function App() {
             element={
               <Suspense>
                 <OutpostsPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="outpost/:id"
+            element={
+              <Suspense>
+                <OutpostDetailPage />
               </Suspense>
             }
           />

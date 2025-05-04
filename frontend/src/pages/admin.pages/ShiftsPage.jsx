@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import { useShiftStore } from "../../../store/shiftStore.js";
 import Button from "../../components/Button.jsx";
-import { Trash2, PenBoxIcon, Plus } from "lucide-react";
-import LoadingSpinner from "../../components/LoadingSpinner.jsx";
+import { Trash2, PenBoxIcon, Plus, Loader } from "lucide-react";
 import { toTitleCase } from "../../utils/toTitleCase.js";
 import { motion } from "framer-motion";
 import dayjs from "dayjs";
@@ -85,7 +84,7 @@ const ShiftsPage = ({}) => {
   };
 
   if (isLoading) {
-    return <LoadingSpinner />;
+    return <Loader className="w-6h-6 animate-spin mx-auto" />;
   }
   return (
     <div className="flex max-w-md w-full flex-col gap-2 mx-2">

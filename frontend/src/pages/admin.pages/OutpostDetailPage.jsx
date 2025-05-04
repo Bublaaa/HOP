@@ -1,6 +1,6 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { Loader, Plus } from "lucide-react";
+import { Loader, MapPinnedIcon } from "lucide-react";
 import { Input } from "../../components/Input.jsx";
 import { motion } from "framer-motion";
 import { useOutpostStore } from "../../../store/outpostStore.js";
@@ -8,8 +8,10 @@ import { requestLocation } from "../../utils/location.js";
 import Button from "../../components/Button.jsx";
 import toast from "react-hot-toast";
 
-const AddOutpostPage = () => {
-  const { createOutpost, isLoading } = useOutpostStore();
+const OutpostDetailPage = () => {
+  const { id } = useParams();
+  const { outpost, fetchOutpostDetail, updateOutpost, isLoading } =
+    useOutpostStore();
   const [name, setName] = useState("");
   const [locationGranted, setLocationGranted] = useState(null);
   const [latitude, setLatitude] = useState(0);
@@ -30,6 +32,18 @@ const AddOutpostPage = () => {
   useEffect(() => {
     checkLocationPermission();
   }, []);
+  useEffect(() => {
+    fetchOutpostDetail(id);
+  }, [id, fetchOutpostDetail]);
+
+  useEffect(() => {
+    if (outpost) {
+      setName(outpost.name || "");
+      setLatitude(outpost.latitude || "");
+      setLongitude(outpost.longitude || "");
+    }
+  }, [outpost]);
+
   if (isLoading) {
     return <Loader className="w-6h-6 animate-spin mx-auto" />;
   }
@@ -40,11 +54,15 @@ const AddOutpostPage = () => {
       toast.error("Please recalibrate your coordinates");
       return;
     }
-    await createOutpost(name, latitude, longitude);
-    toast.success("Success add new outpost");
+    await updateOutpost(id, name, latitude, longitude);
+    toast.success("Success update outpost detail");
     setTimeout(() => {
       navigate(-1);
     }, 1000);
+  };
+  const handleRecalibrate = (e) => {
+    e.preventDefault();
+    checkLocationPermission();
   };
   return (
     <form
@@ -57,12 +75,11 @@ const AddOutpostPage = () => {
         transition={{ duration: 0.5 }}
         className="flex flex-row w-full items-center justify-between"
       >
-        <h6>New Outpost</h6>
+        <h6>Update Outpost</h6>
         <Button
           type="submit"
           buttonType={`${latitude !== 0 ? "primary" : "disabled"}`}
           buttonSize="medium"
-          icon={Plus}
         >
           Save
         </Button>
@@ -106,8 +123,16 @@ const AddOutpostPage = () => {
           </p>
         </div>
       )}
+      <Button
+        buttonSize="large"
+        buttonType="primary"
+        icon={MapPinnedIcon}
+        onClick={() => checkLocationPermission()}
+      >
+        Recalibrate
+      </Button>
     </form>
   );
 };
 
-export default AddOutpostPage;
+export default OutpostDetailPage;
