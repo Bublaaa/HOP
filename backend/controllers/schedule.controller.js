@@ -135,13 +135,13 @@ export const deleteSchedule = async (req, res) => {
         .status(404)
         .json({ success: false, message: "Schedule not found" });
     }
-    const attendanceBySchedule = await Attendance.countDocuments({
+    const attendanceCount = await Attendance.countDocuments({
       scheduleId: id,
     });
-    if (attendanceBySchedule.length > 0) {
+    if (attendanceCount > 0) {
       return res.status(400).json({
         success: false,
-        message: "Schedule data for that outpost exist",
+        message: "Attendance data for that schedule exist",
       });
     }
 
