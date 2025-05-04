@@ -22,6 +22,12 @@ const SecurityDashboard = lazy(() =>
 
 const SignUpPage = lazy(() => import("./pages/admin.pages/SignUpPage.jsx"));
 const UsersPage = lazy(() => import("./pages/admin.pages/UsersPage.jsx"));
+const OutpostsPage = lazy(() => import("./pages/admin.pages/OutpostsPage.jsx"));
+const ShiftsPage = lazy(() => import("./pages/admin.pages/ShiftsPage.jsx"));
+const ShiftsDetailPage = lazy(() =>
+  import("./pages/admin.pages/ShiftsDetailPage.jsx")
+);
+const AddShiftPage = lazy(() => import("./pages/admin.pages/AddShiftPage.jsx"));
 
 // Protect routes that require authentication
 const ProtectedRoute = ({ children, requiredRole }) => {
@@ -105,6 +111,38 @@ function App() {
             element={
               <Suspense>
                 <SignUpPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="outposts"
+            element={
+              <Suspense>
+                <OutpostsPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="shifts"
+            element={
+              <Suspense>
+                <ShiftsPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="shifts/:id"
+            element={
+              <Suspense>
+                <ShiftsDetailPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="add-shift"
+            element={
+              <Suspense>
+                <AddShiftPage />
               </Suspense>
             }
           />

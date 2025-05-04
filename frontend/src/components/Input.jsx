@@ -288,3 +288,50 @@ export const RadioInput = ({
     {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
   </div>
 );
+
+export const TimeInput = ({ value, onChange, label, error, ...props }) => (
+  <div className="relative">
+    {label && (
+      <label className="block text-sm font-medium text-gray-600 mb-1">
+        {label}
+      </label>
+    )}
+    <input
+      {...props}
+      value={value}
+      onChange={onChange}
+      type="time"
+      className={`w-full border rounded-lg md:p-3 p-2 bg-white text-dark placeholder:text-sm 
+        md:placeholder:text-base placeholder-gray-400 focus:ring-4 focus:outline-none transition no-spinner
+        ${
+          error
+            ? "border-red-500 focus:ring-red-300"
+            : "border-gray-300 focus:border-accent focus:ring-accent/40"
+        }`}
+    />
+    {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
+  </div>
+);
+
+// ** DEFAULT TIME INPUT
+{
+  /* <div>
+  <label
+    for="start-time"
+    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+  >
+    Start time:
+  </label>
+  <div class="relative">
+    <input
+      type="time"
+      id="start-time"
+      class="bg-gray-50 border leading-none border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+      min="09:00"
+      max="18:00"
+      value="00:00"
+      required
+    />
+  </div>
+</div>; */
+}
