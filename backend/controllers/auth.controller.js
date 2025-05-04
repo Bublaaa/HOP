@@ -117,3 +117,21 @@ export const getAllUser = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+export const getUserDetail = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const user = await User.findById(id).select("-password");
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
+    }
+    res.status(200).json({
+      success: true,
+      user,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
