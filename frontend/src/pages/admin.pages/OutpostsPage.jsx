@@ -24,7 +24,7 @@ const OutpostsPage = ({}) => {
         className="flex flex-row w-full items-center p-4 bg-white rounded-lg justify-between"
       >
         <h6>Manage Outpost</h6>
-        <NavLink to={"/admin/signup"}>
+        <NavLink to={"/admin/add-outpost"}>
           <Button buttonType="primary" buttonSize="medium" icon={Plus}>
             Add Outpost
           </Button>

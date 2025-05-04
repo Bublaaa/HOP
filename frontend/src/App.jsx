@@ -23,6 +23,9 @@ const SecurityDashboard = lazy(() =>
 const SignUpPage = lazy(() => import("./pages/admin.pages/SignUpPage.jsx"));
 const UsersPage = lazy(() => import("./pages/admin.pages/UsersPage.jsx"));
 const OutpostsPage = lazy(() => import("./pages/admin.pages/OutpostsPage.jsx"));
+const AddOutpostPage = lazy(() =>
+  import("./pages/admin.pages/AddOutpostPage.jsx")
+);
 const ShiftsPage = lazy(() => import("./pages/admin.pages/ShiftsPage.jsx"));
 const ShiftsDetailPage = lazy(() =>
   import("./pages/admin.pages/ShiftsDetailPage.jsx")
@@ -131,6 +134,14 @@ function App() {
             element={
               <Suspense>
                 <OutpostsPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="add-outpost"
+            element={
+              <Suspense>
+                <AddOutpostPage />
               </Suspense>
             }
           />
