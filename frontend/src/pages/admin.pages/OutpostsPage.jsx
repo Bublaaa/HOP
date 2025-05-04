@@ -63,7 +63,7 @@ const OutpostsPage = ({}) => {
         title={modalState.title}
         body={modalState.body}
       />
-      <div onClick={(e) => handleDeleteAction(e)}>
+      <div className="space-y-2" onClick={(e) => handleDeleteAction(e)}>
         {outposts.map((outpost, index) => {
           return (
             <motion.div

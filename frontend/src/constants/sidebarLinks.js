@@ -13,8 +13,8 @@ const sidebarLinks = {
     { label: "Users", icon: "Users", href: "/admin/users" },
     { label: "Outpost", icon: "House", href: "/admin/outposts" },
     { label: "Shift", icon: "Clock", href: "/admin/shifts" },
-    { label: "Schedule", icon: "CalendarSync", href: "/admin/schedule" },
-    { label: "Attendance", icon: "BookUser", href: "/admin/schedule" },
+    { label: "Schedule", icon: "CalendarSync", href: "/admin/schedules" },
+    { label: "Attendance", icon: "BookUser", href: "/admin/attendances" },
   ],
 };
 

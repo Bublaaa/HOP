@@ -107,7 +107,7 @@ const ShiftsPage = ({}) => {
         title={modalState.title}
         body={modalState.body}
       />
-      <div onClick={(e) => handleDeleteAction(e)}>
+      <div className="space-y-2" onClick={(e) => handleDeleteAction(e)}>
         {shifts.map((shift, index) => {
           return (
             <motion.div

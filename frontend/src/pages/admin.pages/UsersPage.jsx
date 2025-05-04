@@ -63,7 +63,7 @@ const UserPage = ({}) => {
         title={modalState.title}
         body={modalState.body}
       />
-      <div onClick={(e) => handleDeleteAction(e)}>
+      <div className="space-y-2" onClick={(e) => handleDeleteAction(e)}>
         {users.map((user, index) => {
           return (
             <motion.div
