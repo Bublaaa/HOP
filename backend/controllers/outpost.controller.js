@@ -119,8 +119,8 @@ export const deleteOutpost = async (req, res) => {
         .status(404)
         .json({ success: false, message: "Outpost not found" });
     }
-    const scheduleByOutpost = await Schedule.countDocuments({ outpostId: id });
-    if (scheduleByOutpost.length > 0) {
+    const scheduleCount = await Schedule.countDocuments({ outpostId: id });
+    if (scheduleCount > 0) {
       return res.status(400).json({
         success: false,
         message: "Schedule data for that outpost exist",

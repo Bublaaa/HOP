@@ -101,7 +101,7 @@ export const updateShift = async (req, res) => {
       startTime: startTime,
       endTime: endTime,
     });
-    res.status(201).json({
+    res.status(200).json({
       success: true,
       message: "Successfully updated shift",
       shift: updatedShift,
@@ -120,8 +120,8 @@ export const deleteShift = async (req, res) => {
         .status(404)
         .json({ success: false, message: "Shift not found" });
     }
-    const scheduleByShift = await Schedule.countDocuments({ shiftId: id });
-    if (scheduleByShift.length > 0) {
+    const scheduleCount = await Schedule.countDocuments({ shiftId: id });
+    if (scheduleCount > 0) {
       return res.status(400).json({
         success: false,
         message: "Schedule data for that outpost exist",

@@ -1,4 +1,5 @@
 import { User } from "../models/User.js";
+import { Schedule } from "../models/Schedule.js";
 import bcrypt from "bcryptjs";
 import generateTokenAndSetCookie from "../utils/generateTokenAndSetCookie.js";
 
@@ -130,6 +131,64 @@ export const getUserDetail = async (req, res) => {
     res.status(200).json({
       success: true,
       user,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const updateUser = async (req, res) => {
+  const { id } = req.params;
+  const { email, firstName, middleName, lastName } = req.body;
+  try {
+    if (!email || !firstName || !lastName) {
+      return res
+        .status(400)
+        .json({ success: false, message: "All fields are required" });
+    }
+    const isExist = await User.findById(id);
+    if (!isExist) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
+    }
+    const updatedUser = await User.findByIdAndUpdate(id, {
+      email,
+      firstName,
+      middleName,
+      lastName,
+    });
+    res.status(200).json({
+      success: true,
+      message: "Successfully updated account",
+      user: updatedUser,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const deleteUser = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const isUserExist = await User.findById(id);
+    if (!isUserExist) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
+    }
+    const scheduleCount = await Schedule.countDocuments({ userId: id });
+    if (scheduleCount > 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Schedule data for that user account exist",
+      });
+    }
+    await User.findByIdAndDelete(id);
+
+    res.status(200).json({
+      success: true,
+      message: "User deleted successfully",
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
