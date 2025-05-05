@@ -86,10 +86,10 @@ const SchedulesPage = ({}) => {
     isOutpostLoading ||
     isScheduleLoading
   ) {
-    return <Loader className="w-6h-6 animate-spin mx-auto" />;
+    return <Loader className="w-6 h-6 animate-spin mx-auto" />;
   }
   return (
-    <div className="flex max-w-5xl w-full flex-col gap-2 mx-2">
+    <div className="flex max-w-6xl w-full flex-col gap-2 mx-2">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

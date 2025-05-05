@@ -1,4 +1,4 @@
-import { formatDate, formatTime } from "../utils/dateFormatter";
+import { formatDate, formatTimeToHours } from "../utils/dateFormatter";
 import ShiftProgressBar from "./ShiftProgressBar";
 import { NavLink } from "react-router-dom";
 
@@ -47,10 +47,13 @@ const ScheduleTable = ({
                       key={date.toISOString()}
                       className="p-2 text-center hover:bg-gray-200 hover:cursor-pointer"
                     >
-                      <div className="font-semibold">{shift?.name || "-"}</div>
+                      <div className="font-semibold">
+                        {shift?.name ? shift.name.charAt(0).toUpperCase() : "-"}
+                      </div>
+
                       <div className="text-xs text-gray-500">
-                        {formatTime(shift?.startTime)} -{" "}
-                        {formatTime(shift?.endTime)}
+                        {formatTimeToHours(shift?.startTime)} -{" "}
+                        {formatTimeToHours(shift?.endTime)}
                       </div>
                       <ShiftProgressBar
                         startTime={shift?.startTime}

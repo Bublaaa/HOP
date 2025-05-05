@@ -1,11 +1,38 @@
 import { useEffect, useState } from "react";
 import { DropdownInput } from "./Input.jsx";
+import { getDateRangeOfCurrentMonth } from "../utils/dateHelper.js";
 
-const AddScheduleTable = ({ users, shifts, scheduleData, setScheduleData }) => {
-  //** WEEK DATES
+const AddScheduleTable = ({
+  users,
+  shifts,
+  schedules,
+  scheduleData,
+  setScheduleData,
+  selectedOutpostId,
+}) => {
   const [weekDates, setWeekDates] = useState([]);
+  const [fullScheduledUsers, setFullScheduledUsers] = useState([]);
+  const { dates: monthDates } = getDateRangeOfCurrentMonth();
+  useEffect(() => {
+    const fullyScheduled = users.filter((user) => {
+      const userSchedules = schedules.filter(
+        (s) => s.userId === user._id && s.outpostId === selectedOutpostId
+      );
 
-  //** ADDING DAY NAME ARRAY INTO WEEK DATES
+      const scheduledDates = userSchedules.map(
+        (s) => new Date(s.date).toISOString().split("T")[0]
+      );
+
+      // Compare to see if all dates of the month are scheduled
+      return monthDates.every((date) =>
+        scheduledDates.includes(date.toISOString().split("T")[0])
+      );
+    });
+
+    setFullScheduledUsers(fullyScheduled.map((u) => u._id));
+  }, [users, schedules, selectedOutpostId]);
+
+  // Set current week
   useEffect(() => {
     const today = new Date();
     const dayOfWeek = today.getDay();
@@ -20,41 +47,34 @@ const AddScheduleTable = ({ users, shifts, scheduleData, setScheduleData }) => {
     setWeekDates(dates);
   }, [users, shifts]);
 
-  //** RESTRUCTURE SHIFT INTO SHIFT OPTION
   const shiftOptions = shifts.map((shift) => ({
     label: shift.name,
     value: shift._id,
   }));
 
-  //** HANDLE DROPDOWN SELECT
   const handleSelect = (e, date, userId) => {
     const shiftId = e.target.value;
     const dayName = new Date(date).toLocaleDateString("en-US", {
       weekday: "long",
     });
 
-    //** ADDING SCHEDULE DATA TO SCHEDULE IN WEEK
-    setScheduleData((prev) => {
-      return prev.map((item) => {
-        if (item.userId !== userId) return item;
-        const scheduleInWeek = Array.isArray(item.scheduleInWeek)
-          ? item.scheduleInWeek
-          : [];
-        const dayIndex = scheduleInWeek.findIndex(
-          (entry) => Object.keys(entry)[0] === dayName
-        );
-        let newScheduleInWeek = [...scheduleInWeek];
-        if (dayIndex > -1) {
-          newScheduleInWeek[dayIndex] = { [dayName]: shiftId };
-        } else {
-          newScheduleInWeek.push({ [dayName]: shiftId });
-        }
-        return {
-          ...item,
-          scheduleInWeek: newScheduleInWeek,
-        };
-      });
-    });
+    const scheduleForUser = scheduleData.find((s) => s.userId === userId);
+    const oldSchedule = Array.isArray(scheduleForUser?.scheduleInWeek)
+      ? scheduleForUser.scheduleInWeek
+      : [];
+
+    const dayIndex = oldSchedule.findIndex(
+      (entry) => Object.keys(entry)[0] === dayName
+    );
+
+    let newScheduleInWeek = [...oldSchedule];
+    if (dayIndex > -1) {
+      newScheduleInWeek[dayIndex] = { [dayName]: shiftId };
+    } else {
+      newScheduleInWeek.push({ [dayName]: shiftId });
+    }
+
+    setScheduleData(newScheduleInWeek, userId);
   };
 
   return (
@@ -99,14 +119,20 @@ const AddScheduleTable = ({ users, shifts, scheduleData, setScheduleData }) => {
 
                 return (
                   <td key={date.toISOString()} className="p-2">
-                    <DropdownInput
-                      label=""
-                      name="position"
-                      value={selectedShiftId}
-                      options={shiftOptions}
-                      placeholder="Select Shift"
-                      onChange={(e) => handleSelect(e, date, user._id)}
-                    />
+                    {fullScheduledUsers.includes(user._id) ? (
+                      <span className="text-gray-400 text-xs italic">
+                        Scheduled
+                      </span>
+                    ) : (
+                      <DropdownInput
+                        label=""
+                        name="position"
+                        value={selectedShiftId}
+                        options={shiftOptions}
+                        placeholder="Select Shift"
+                        onChange={(e) => handleSelect(e, date, user._id)}
+                      />
+                    )}
                   </td>
                 );
               })}

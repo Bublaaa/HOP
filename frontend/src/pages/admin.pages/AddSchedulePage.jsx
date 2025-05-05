@@ -1,13 +1,11 @@
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Loader, Plus } from "lucide-react";
-import { Input } from "../../components/Input.jsx";
 import { motion } from "framer-motion";
 import { useOutpostStore } from "../../../store/outpostStore.js";
 import { useShiftStore } from "../../../store/shiftStore.js";
 import { useScheduleStore } from "../../../store/scheduleStore.js";
 import { toTitleCase } from "../../utils/toTitleCase.js";
-import { requestLocation } from "../../utils/location.js";
 import Button from "../../components/Button.jsx";
 import toast from "react-hot-toast";
 import { useAuthStore } from "../../../store/authStore.js";
@@ -15,6 +13,9 @@ import { getDateRangeOfCurrentMonth } from "../../utils/dateHelper.js";
 import AddScheduleTable from "../../components/AddScheduleTable.jsx";
 
 const AddSchedulePage = () => {
+  //** REDIRECT
+  const navigate = useNavigate();
+
   //** ZUSTAND FUNCTION
   const {
     users,
@@ -51,6 +52,12 @@ const AddSchedulePage = () => {
     }
   }, [outposts]);
 
+  //** IS SCHEDULE CHANGE STATE
+  const [isScheduleDataChange, setIsScheduleDataChange] = useState(false);
+
+  //** SELECTED OUTPOST STATE
+  const [selectedOutpost, setSelectedOutpost] = useState("");
+
   //** SCHEDULE DATA STATE
   const [scheduleData, setScheduleData] = useState([
     {
@@ -75,33 +82,71 @@ const AddSchedulePage = () => {
     }
   }, [outposts, users]);
 
-  //** SELECTED OUTPOST
-  const [selectedOutpost, setSelectedOutpost] = useState("");
+  useEffect(() => {
+    const hasChanges = scheduleData.some(
+      (schedule) =>
+        Array.isArray(schedule.scheduleInWeek) &&
+        schedule.scheduleInWeek.length > 0
+    );
+    setIsScheduleDataChange(hasChanges);
+  }, [scheduleData]);
 
-  //** GET THIS MONTH DATES RANGE
-  const { firstHalf, secondHalf } = getDateRangeOfCurrentMonth();
-
-  //** REDIRECT
-  const navigate = useNavigate();
+  //** CHECKING DUPLICATES
+  const isScheduleAlreadyExists = (existingSchedules, newSchedule) => {
+    return existingSchedules.some((schedule) => {
+      return (
+        schedule.userId === newSchedule.userId &&
+        schedule.outpostId === newSchedule.outpostId &&
+        schedule.shiftId === newSchedule.shiftId &&
+        new Date(schedule.date).toISOString() === newSchedule.date
+      );
+    });
+  };
 
   //** SUBMIT HANDLER
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!scheduleData.userId || !scheduleData.outpostId) {
-      return;
-    }
+    const { dates } = getDateRangeOfCurrentMonth();
+    if (!isScheduleDataChange) return;
+
     try {
-      await createSchedule(
-        scheduleData.userId,
-        scheduleData.outpostId,
-        scheduleData.shiftId,
-        scheduleData.date
-      );
+      for (const date of dates) {
+        const currentDateDayName = new Date(date).toLocaleDateString("en-US", {
+          weekday: "long",
+        });
+
+        for (const schedule of scheduleData) {
+          const shiftIdForDay = schedule.scheduleInWeek.find(
+            (entry) => Object.keys(entry)[0] === currentDateDayName
+          )?.[currentDateDayName];
+
+          if (!shiftIdForDay) continue;
+
+          const newSchedule = {
+            userId: schedule.userId,
+            outpostId: schedule.outpostId,
+            shiftId: shiftIdForDay,
+            date: new Date(date).toISOString(),
+          };
+
+          if (isScheduleAlreadyExists(schedules, newSchedule)) {
+            continue;
+          }
+          await createSchedule(
+            newSchedule.userId,
+            newSchedule.outpostId,
+            newSchedule.shiftId,
+            newSchedule.date
+          );
+        }
+      }
+
       toast.success("Schedule successfully created");
       setTimeout(() => {
         navigate(-1);
       }, 1000);
     } catch (err) {
+      console.error(err);
       toast.error("Failed to create schedule");
     }
   };
@@ -135,14 +180,7 @@ const AddSchedulePage = () => {
         <Button
           type="submit"
           buttonSize="medium"
-          buttonType={
-            scheduleData.userId &&
-            scheduleData.outpostId &&
-            scheduleData.shiftId &&
-            scheduleData.date
-              ? "primary"
-              : "disabled"
-          }
+          buttonType={isScheduleDataChange ? "primary" : "disabled"}
           icon={Plus}
         >
           Save
@@ -168,10 +206,20 @@ const AddSchedulePage = () => {
       <AddScheduleTable
         users={users}
         shifts={shifts}
+        schedules={schedules}
         scheduleData={scheduleData.filter(
           (schedule) => schedule.outpostId == selectedOutpost._id
         )}
-        setScheduleData={setScheduleData}
+        setScheduleData={(updatedScheduleInWeek, userId) =>
+          setScheduleData((prev) =>
+            prev.map((item) =>
+              item.outpostId === selectedOutpost._id && item.userId === userId
+                ? { ...item, scheduleInWeek: updatedScheduleInWeek }
+                : item
+            )
+          )
+        }
+        selectedOutpostId={selectedOutpost._id}
       />
     </form>
   );

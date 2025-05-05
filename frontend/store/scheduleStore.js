@@ -52,7 +52,7 @@ export const useScheduleStore = create((set, get) => {
           date,
         });
         set({ schedule: response.data.schedule, isLoading: false });
-        toast.success("Success add new schedule");
+        // toast.success("Success add new schedule");
         await get().fetchSchedules(); // refresh list
       } catch (error) {
         handleError(error, "Error creating schedule");
