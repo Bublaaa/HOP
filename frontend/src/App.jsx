@@ -51,6 +51,8 @@ const CreateSingleSchedulePage = lazy(() =>
   import("./pages/admin.pages/CreateSingleSchedulePage.jsx")
 );
 
+const QrCodePage = lazy(() => import("./pages/outpost.pages/QrCodePage.jsx"));
+
 // Protect routes that require authentication
 const ProtectedRoute = ({ children, requiredRole }) => {
   const { isAuthenticated, user } = useAuthStore();
@@ -233,12 +235,24 @@ function App() {
           path="/outpost"
           element={
             <ProtectedRoute requiredRole="outpost">
-              <Suspense>
+              <Suspense
+                fallback={<Loader className="w-6h-6 animate-spin mx-auto" />}
+              >
                 <OutpostDashboard />
               </Suspense>
             </ProtectedRoute>
           }
-        ></Route>
+        >
+          <Route index element={<Navigate to="qr-code" replace />} />
+          <Route
+            path="qr-code"
+            element={
+              <Suspense>
+                <QrCodePage />
+              </Suspense>
+            }
+          />
+        </Route>
         {/* Security Routes */}
         <Route
           path="/security"

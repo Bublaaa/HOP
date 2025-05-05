@@ -22,6 +22,8 @@ export const useShiftStore = create((set, get) => {
     error: null,
     isLoading: false,
     message: null,
+    qrCode: null,
+    url: "",
     //** GET ALL
     fetchShifts: async () => {
       set({ isLoading: true, error: null });
@@ -84,6 +86,26 @@ export const useShiftStore = create((set, get) => {
         await get().fetchShifts(); // refresh list
       } catch (error) {
         handleError(error, "Error deleting shift");
+      }
+    },
+
+    fetchQrCode: async (outpostId) => {
+      set({ isLoading: true, error: null, qrCode: null, url: null });
+      try {
+        const response = await axios.post(`${API_URL}shift/generate-qr`, {
+          outpostId,
+        });
+        set({
+          isLoading: false,
+          qrCode: response.data.qrCode,
+          url: response.data.attendanceUrl,
+        });
+        toast.success("Successfully fetched QR Code!");
+      } catch (error) {
+        const errorMessage =
+          error.response?.data?.message || "Error fetching QR Code";
+        set({ error: errorMessage, isLoading: false });
+        toast.error(errorMessage);
       }
     },
   };

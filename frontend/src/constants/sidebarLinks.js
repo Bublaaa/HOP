@@ -4,7 +4,7 @@ const sidebarLinks = {
     { label: "Profile", icon: "Home", href: "/profile" },
   ],
   outpost: [
-    { label: "Dashboard", icon: "LayoutDashboard", href: "/dashboard" },
+    { label: "Dashboard", icon: "QrCode", href: "/outpost/qr-code" },
     { label: "Orders", icon: "ClipboardList", href: "/orders" },
     { label: "Profile", icon: "User", href: "/profile" },
   ],

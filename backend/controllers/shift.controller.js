@@ -1,6 +1,9 @@
 import { Shift } from "../models/Shift.js";
 import { Schedule } from "../models/Schedule.js";
 
+import { generateAttendanceSession } from "../utils/attendanceHelper.js";
+import QRCode from "qrcode";
+
 // * * GET ALL
 export const getAllShift = async (req, res) => {
   try {
@@ -135,5 +138,43 @@ export const deleteShift = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const generateQrCode = async (req, res) => {
+  const API_URL =
+    process.env.NODE_ENV === "development"
+      ? "http://localhost:5002/api/"
+      : "/api/";
+  const { outpostId } = req.body;
+  try {
+    const shifts = await Shift.find().sort({ name: 1 });
+    const sessionId = generateAttendanceSession(shifts);
+    // ** THIS IS URL TO BE SEND
+    const attendanceUrl = `${API_URL}attendance/create/${outpostId}-${sessionId}`;
+    const qrCodeDataUrl = await QRCode.toDataURL(attendanceUrl);
+    if (!sessionId) {
+      return res.status(400).json({
+        success: false,
+        message: "No active shift found for this time.",
+      });
+    }
+    if (!qrCodeDataUrl) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Failed to generate image" });
+    }
+    res.status(200).json({
+      success: true,
+      sessionId,
+      qrCode: qrCodeDataUrl, // base64 image
+      attendanceUrl,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Failed to generate QR Code",
+      error: error.message,
+    });
   }
 };
