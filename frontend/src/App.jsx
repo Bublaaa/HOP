@@ -44,6 +44,9 @@ const SchedulesPage = lazy(() =>
 const AddSchedulePage = lazy(() =>
   import("./pages/admin.pages/AddSchedulePage.jsx")
 );
+const ScheduleDetailPage = lazy(() =>
+  import("./pages/admin.pages/ScheduleDetailPage.jsx")
+);
 
 // Protect routes that require authentication
 const ProtectedRoute = ({ children, requiredRole }) => {
@@ -201,6 +204,14 @@ function App() {
             element={
               <Suspense>
                 <AddSchedulePage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="schedule/:id"
+            element={
+              <Suspense>
+                <ScheduleDetailPage />
               </Suspense>
             }
           />

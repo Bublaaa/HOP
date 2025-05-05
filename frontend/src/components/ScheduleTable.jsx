@@ -20,7 +20,10 @@ const ScheduleTable = ({
           <tr>
             <th className="p-2">User</th>
             {dateRange.map((date) => (
-              <th key={date.toISOString()} className="p-2 text-center">
+              <th
+                key={date.toISOString()}
+                className="p-2 text-center hover:cursor-pointer hover:bg-accent-hover"
+              >
                 {formatDate(date).slice(0, 2)}
               </th>
             ))}
@@ -47,18 +50,21 @@ const ScheduleTable = ({
                       key={date.toISOString()}
                       className="p-2 text-center hover:bg-gray-200 hover:cursor-pointer"
                     >
-                      <div className="font-semibold">
-                        {shift?.name ? shift.name.charAt(0).toUpperCase() : "-"}
-                      </div>
-
-                      <div className="text-xs text-gray-500">
-                        {formatTimeToHours(shift?.startTime)} -{" "}
-                        {formatTimeToHours(shift?.endTime)}
-                      </div>
-                      <ShiftProgressBar
-                        startTime={shift?.startTime}
-                        endTime={shift?.endTime}
-                      />
+                      <NavLink to={`/admin/schedule/${schedule._id}`}>
+                        <div className="font-semibold">
+                          {shift?.name
+                            ? shift.name.charAt(0).toUpperCase()
+                            : "-"}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          {formatTimeToHours(shift?.startTime)} -{" "}
+                          {formatTimeToHours(shift?.endTime)}
+                        </div>
+                        <ShiftProgressBar
+                          startTime={shift?.startTime}
+                          endTime={shift?.endTime}
+                        />
+                      </NavLink>
                     </td>
                   );
                 } else {
@@ -67,7 +73,7 @@ const ScheduleTable = ({
                       key={date.toISOString()}
                       className="p-2 text-center hover:bg-gray-200 hover:cursor-pointer"
                     >
-                      -
+                      <NavLink to={"/admin/add-schedule"}>-</NavLink>
                     </td>
                   );
                 }

@@ -69,7 +69,7 @@ export const useScheduleStore = create((set, get) => {
           date,
         });
         set({ schedule: response.data.schedule, isLoading: false });
-        toast.success("Success update schedule");
+        // toast.success("Success update schedule");
         await get().fetchSchedules(); // refresh list
       } catch (error) {
         handleError(error, "Error updating schedule");

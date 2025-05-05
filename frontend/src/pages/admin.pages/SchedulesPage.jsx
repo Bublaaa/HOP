@@ -18,7 +18,11 @@ const SchedulesPage = ({}) => {
   const [selectedOutpost, setSelectedOutpost] = useState("");
 
   //** ZUSTAND FUNCTION
-  const { users, fetchAllUsers, isLoading: isUserLoading } = useAuthStore();
+  const {
+    users,
+    fetchAllSecurities,
+    isLoading: isUserLoading,
+  } = useAuthStore();
   const { shifts, fetchShifts, isLoading: isShiftLoading } = useShiftStore();
   const {
     outposts,
@@ -35,10 +39,10 @@ const SchedulesPage = ({}) => {
   //** FETCHING ALL DATA
   useEffect(() => {
     fetchSchedules();
-    fetchAllUsers();
+    fetchAllSecurities();
     fetchShifts();
     fetchOutposts();
-  }, [fetchOutposts, fetchShifts, fetchAllUsers, fetchSchedules]);
+  }, [fetchOutposts, fetchShifts, fetchAllSecurities, fetchSchedules]);
 
   //** UPDATING THE SELECTED OUTPOST STATE
   useEffect(() => {
@@ -108,7 +112,7 @@ const SchedulesPage = ({}) => {
           return (
             <div
               key={index}
-              className={`flex p-3 rounded-lg shadow-md font-semibold ${
+              className={`flex p-3 rounded-lg shadow-md font-semibold hover:cursor-pointer ${
                 selectedOutpost === outpost
                   ? "bg-accent hover:bg-accent-hover text-white"
                   : "bg-white hover:bg-gray-100 text-gray-500 "
