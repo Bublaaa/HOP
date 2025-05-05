@@ -14,18 +14,16 @@ const MenuLink = ({ links }) => {
         const isActive = location.pathname === link.href;
         const IconComponent = LucideIcons[link.icon] || LucideIcons.Menu;
         return (
-          <li
+          <NavLink
+            to={link.href}
             key={index}
-            className="flex flex-row w-fit items-center px-3 shadow-lg py-3 justify-between bg-white rounded-lg hover:bg-gray-100"
+            className={`flex w-fit items-center transition-colors duration-200 group ${
+              isActive
+                ? "text-accent hover:text-accent-hover"
+                : "text-gray-500 hover:text-gray-900"
+            }`}
           >
-            <NavLink
-              to={link.href}
-              className={`flex w-fit items-center transition-colors duration-200 group ${
-                isActive
-                  ? "text-accent hover:text-accent-hover"
-                  : "text-gray-500 hover:text-gray-900"
-              }`}
-            >
+            <li className="flex flex-row w-fit items-center px-3 shadow-lg py-3 justify-between bg-white rounded-lg hover:bg-gray-100">
               <IconComponent className="w-5 h-5  group-hover:scale-110 transition duration-75 mr-3" />
               <h6
                 className={`text-sm font-medium ${
@@ -36,8 +34,8 @@ const MenuLink = ({ links }) => {
               >
                 {link.label}
               </h6>
-            </NavLink>
-          </li>
+            </li>
+          </NavLink>
         );
       })}
       <li

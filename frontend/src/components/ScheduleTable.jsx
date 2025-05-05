@@ -1,4 +1,6 @@
 import { formatDate, formatTime } from "../utils/dateFormatter";
+import ShiftProgressBar from "./ShiftProgressBar";
+import { NavLink } from "react-router-dom";
 
 const ScheduleTable = ({
   selectedOutpost,
@@ -36,23 +38,32 @@ const ScheduleTable = ({
                     s.userId === user._id &&
                     formatDate(new Date(s.date)) === formatDate(date)
                 );
-
                 if (schedule) {
                   const shift = shifts.find(
                     (shift) => shift._id === schedule.shiftId
                   );
                   return (
-                    <td key={date.toISOString()} className="p-2 text-center">
+                    <td
+                      key={date.toISOString()}
+                      className="p-2 text-center hover:bg-gray-200 hover:cursor-pointer"
+                    >
                       <div className="font-semibold">{shift?.name || "-"}</div>
                       <div className="text-xs text-gray-500">
                         {formatTime(shift?.startTime)} -{" "}
                         {formatTime(shift?.endTime)}
                       </div>
+                      <ShiftProgressBar
+                        startTime={shift?.startTime}
+                        endTime={shift?.endTime}
+                      />
                     </td>
                   );
                 } else {
                   return (
-                    <td key={date.toISOString()} className="p-2 text-center">
+                    <td
+                      key={date.toISOString()}
+                      className="p-2 text-center hover:bg-gray-200 hover:cursor-pointer"
+                    >
                       -
                     </td>
                   );

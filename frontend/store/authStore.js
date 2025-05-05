@@ -118,6 +118,25 @@ export const useAuthStore = create((set, get) => ({
       toast.error(errorMessage);
     }
   },
+
+  fetchAllSecurities: async () => {
+    set({ isLoading: false, error: null });
+    try {
+      const response = await axios.get(`${API_URL}auth/users`);
+      const securityUsers = response.data.users.filter(
+        (user) => user.position === "security"
+      );
+      set({ isLoading: false, users: securityUsers });
+    } catch (error) {
+      const errorMessage =
+        error.response?.data?.message || "Error adding new ingredients";
+      set({
+        error: errorMessage,
+        isLoading: false,
+      });
+      toast.error(errorMessage);
+    }
+  },
   //** FETCH Detail
   fetchUserDetail: async (id) => {
     set({ isLoading: false, error: null });
