@@ -4,9 +4,7 @@ import { Plus, Loader } from "lucide-react";
 import { toTitleCase } from "../../utils/toTitleCase.js";
 import { NavLink } from "react-router-dom";
 import { motion } from "framer-motion";
-import { DeleteConfirmationForm } from "../../components/DeleteConfirmationForm.jsx";
 import Button from "../../components/Button.jsx";
-import Modal from "../../components/Modal.jsx";
 import { useAuthStore } from "../../../store/authStore.js";
 import { useShiftStore } from "../../../store/shiftStore.js";
 import { useOutpostStore } from "../../../store/outpostStore";
@@ -32,7 +30,6 @@ const SchedulesPage = ({}) => {
   const {
     schedules,
     fetchSchedules,
-    deleteSchedule,
     isLoading: isScheduleLoading,
   } = useScheduleStore();
 
@@ -54,35 +51,6 @@ const SchedulesPage = ({}) => {
   //** GET THIS MONTH DATES RANGE
   const { firstHalf, secondHalf } = getDateRangeOfCurrentMonth();
 
-  //** MODAL CONTROLLER
-  const [modalState, setModalState] = useState({
-    isOpen: false,
-    title: "",
-    body: null,
-  });
-  const openModal = (title, body) =>
-    setModalState({ isOpen: true, title, body });
-  const closeModal = () =>
-    setModalState({ isOpen: false, title: "", body: null });
-
-  //** HANDLING DELETE ACTION
-  const handleDeleteAction = (e) => {
-    const deleteButton = e.target.closest(".delete-btn");
-    if (deleteButton) {
-      openModal(
-        "Delete Schedule",
-        <DeleteConfirmationForm
-          itemName={deleteButton.dataset.name}
-          onDelete={deleteSchedule}
-          itemId={deleteButton.dataset.id}
-          onClose={closeModal}
-          // redirect={navigate(-1)}
-        />
-      );
-      return;
-    }
-  };
-
   //** IS LOADING EXCEPTION
   if (
     isUserLoading ||
@@ -101,7 +69,7 @@ const SchedulesPage = ({}) => {
         className="flex flex-row w-full items-center p-4 bg-white rounded-lg justify-between"
       >
         <h6>Manage Schedules</h6>
-        <NavLink to={"/admin/add-schedule"}>
+        <NavLink to={"/admin/add-schedules"}>
           <Button buttonType="primary" buttonSize="medium" icon={Plus}>
             Add Schedule
           </Button>
@@ -125,14 +93,7 @@ const SchedulesPage = ({}) => {
         })}
       </div>
 
-      <Modal
-        isOpen={modalState.isOpen}
-        onClose={closeModal}
-        title={modalState.title}
-        body={modalState.body}
-      />
-
-      <div className="space-y-2" onClick={(e) => handleDeleteAction(e)}>
+      <div className="space-y-2">
         <ScheduleTable
           selectedOutpost={selectedOutpost}
           users={users}

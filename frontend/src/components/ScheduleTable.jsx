@@ -71,9 +71,17 @@ const ScheduleTable = ({
                   return (
                     <td
                       key={date.toISOString()}
-                      className="p-2 text-center hover:bg-gray-200 hover:cursor-pointer"
+                      className="text-center hover:bg-gray-200 hover:cursor-pointer"
                     >
-                      <NavLink to={"/admin/add-schedule"}>-</NavLink>
+                      <NavLink
+                        to={`/admin/add-schedule?userId=${user._id}&outpostId=${
+                          selectedOutpost._id
+                        }&date=${date.toISOString()}`}
+                      >
+                        <div className="w-full h-full flex py-5">
+                          <p className="w-full text-center items-center">-</p>
+                        </div>
+                      </NavLink>
                     </td>
                   );
                 }

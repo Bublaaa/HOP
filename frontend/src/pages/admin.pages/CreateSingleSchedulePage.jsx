@@ -1,6 +1,7 @@
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { Loader } from "lucide-react";
+import { Loader, Plus } from "lucide-react";
 import { motion } from "framer-motion";
 import { useAuthStore } from "../../../store/authStore.js";
 import { useShiftStore } from "../../../store/shiftStore.js";
@@ -12,9 +13,14 @@ import { toTitleCase } from "../../utils/toTitleCase.js";
 import Button from "../../components/Button.jsx";
 import toast from "react-hot-toast";
 
-const ScheduleDetailPage = () => {
-  const { id } = useParams();
+const CreateSingleSchedulePage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+
+  const userId = searchParams.get("userId");
+  const outpostId = searchParams.get("outpostId");
+  const date = searchParams.get("date");
 
   //** SCHEDULE DATA STATE
   const [storedShiftId, setStoredShiftId] = useState("");
@@ -46,37 +52,36 @@ const ScheduleDetailPage = () => {
   const {
     schedule,
     fetchScheduleDetail,
-    updateSchedule,
+    createSchedule,
     isLoading: isScheduleLoading,
   } = useScheduleStore();
 
   //** LOAD INITIAL DATA
   useEffect(() => {
-    fetchScheduleDetail(id);
+    fetchUserDetail(userId);
+    fetchOutpostDetail(outpostId);
     fetchShifts();
-    fetchOutposts();
-  }, [id, fetchScheduleDetail, fetchShifts, fetchOutposts]);
-
-  //** LOAD ADDITIONAL DATA
-  useEffect(() => {
-    if (schedule) {
-      setStoredShiftId(schedule.shiftId || "");
-      setStoredOutpostId(schedule.outpostId || "");
-      fetchShiftDetail(schedule.shiftId || "");
-      fetchUserDetail(schedule.userId || "");
-      fetchOutpostDetail(schedule.outpostId || "");
-    }
-  }, [schedule]);
+  }, [fetchUserDetail, fetchOutpostDetail, fetchShifts]);
 
   //** DROPDOWNS OPTIONS
   const shiftOptions = shifts.map((shift) => ({
     label: shift.name,
     value: shift._id,
   }));
-  const outpostOptions = outposts.map((outpost) => ({
-    label: toTitleCase(outpost.name),
-    value: outpost._id,
-  }));
+
+  //** SUBMIT HANDLER
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!userId || !outpostId || !storedShiftId || !date) {
+      toast.error("All fields are required");
+      return;
+    }
+    await createSchedule(userId, outpostId, storedShiftId, date);
+    toast.success("Success create single schedule");
+    setTimeout(() => {
+      navigate(-1);
+    }, 1000);
+  };
 
   //** LOADER
   if (
@@ -87,23 +92,6 @@ const ScheduleDetailPage = () => {
   ) {
     return <Loader className="w-6 h-6 animate-spin mx-auto" />;
   }
-
-  //** SUBMIT HANDLER
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    await updateSchedule(
-      id,
-      schedule.userId,
-      storedOutpostId,
-      storedShiftId,
-      schedule.date
-    );
-    toast.success("Success update outpost detail");
-    setTimeout(() => {
-      navigate(-1);
-    }, 1000);
-  };
-
   return (
     <form
       className="flex max-w-md w-full flex-col gap-5 p-4 bg-white rounded-lg mx-2"
@@ -115,9 +103,14 @@ const ScheduleDetailPage = () => {
         transition={{ duration: 0.5 }}
         className="flex flex-row w-full items-center justify-between"
       >
-        <h6>Update Schedule</h6>
-        <Button type="submit" buttonType="primary" buttonSize="medium">
-          Save
+        <h6>Create Schedule</h6>
+        <Button
+          type="submit"
+          buttonType={`${!storedShiftId ? "disabled" : "primary"}`}
+          buttonSize="medium"
+          icon={Plus}
+        >
+          Add
         </Button>
       </motion.div>
       <motion.div
@@ -144,21 +137,10 @@ const ScheduleDetailPage = () => {
               {toTitleCase(outpost?.name || "")}
             </p>
           </div>
-
-          <div className="grid grid-cols-5">
-            <p>Shift</p>
-            <p>:</p>
-            <p className="font-semibold col-span-3">
-              {toTitleCase(shift?.name)}
-            </p>
-          </div>
-
           <div className="grid grid-cols-5">
             <p>Date</p>
             <p>:</p>
-            <p className="font-semibold col-span-3">
-              {formatDate(schedule?.date)}
-            </p>
+            <p className="font-semibold col-span-3">{formatDate(date)}</p>
           </div>
         </div>
         <DropdownInput
@@ -169,17 +151,9 @@ const ScheduleDetailPage = () => {
           placeholder="Select Shift"
           onChange={(e) => setStoredShiftId(e.target.value)}
         />
-        <DropdownInput
-          label="Change outpost to :"
-          name="outpost"
-          value={storedOutpostId}
-          options={outpostOptions}
-          placeholder="Select Shift"
-          onChange={(e) => setStoredOutpostId(e.target.value)}
-        />
       </motion.div>
     </form>
   );
 };
 
-export default ScheduleDetailPage;
+export default CreateSingleSchedulePage;
