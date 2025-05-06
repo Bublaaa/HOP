@@ -9,7 +9,7 @@ const API_URL =
 
 axios.defaults.withCredentials = true;
 
-export const useScheduleStore = create((set, get) => {
+export const useAttendanceStore = create((set, get) => {
   const handleError = (error, defaultMsg) => {
     const message = error.response?.data?.message || defaultMsg;
     set({ error: message, isLoading: false });
@@ -19,11 +19,12 @@ export const useScheduleStore = create((set, get) => {
   return {
     attendance: null,
     attendances: [],
+    attendancesByScheduleId: [],
     error: null,
     isLoading: false,
     message: null,
     //** GET ALL
-    fetchSchedules: async () => {
+    fetchAttendances: async () => {
       set({ isLoading: true, error: null });
       try {
         const response = await axios.get(`${API_URL}attendance/getAll`);
@@ -33,7 +34,7 @@ export const useScheduleStore = create((set, get) => {
       }
     },
     //** GET DETAIL
-    fetchScheduleDetail: async (id) => {
+    fetchAttendanceDetail: async (id) => {
       set({ isLoading: true, error: null });
       try {
         const response = await axios.get(
@@ -44,6 +45,41 @@ export const useScheduleStore = create((set, get) => {
         handleError(error, "Error fetching attendance");
       }
     },
+    fetchScheduleToday: async (userId) => {
+      set({ isLoading: true, error: null });
+      try {
+        const response = await axios.get(`${API_URL}schedule/getAll`);
+        const today = new Date().toISOString();
+        const filtered = response.data.schedules.filter(
+          (s) => s.userId === userId && formatDate(s.date) == formatDate(today)
+        );
+        set({ schedules: filtered, isLoading: false });
+      } catch (error) {
+        handleError(error, "Error fetching today's schedule");
+      }
+    },
+    fetchScheduleAttendance: async (scheduleId) => {
+      set((state) => ({ isLoading: true, error: null }));
+      try {
+        const response = await axios.get(`${API_URL}attendance/getAll`);
+        const attendances = response.data.attendances;
+        const filteredAttendance = attendances.find(
+          (a) => a.scheduleId === scheduleId
+        );
+
+        // Store as map of scheduleId -> attendance
+        set((state) => ({
+          attendancesByScheduleId: {
+            ...state.attendancesByScheduleId,
+            [scheduleId]: filteredAttendance,
+          },
+          isLoading: false,
+        }));
+      } catch (error) {
+        handleError(error, "Error fetching attendance");
+      }
+    },
+
     //** CLOCK IN
     clockIn: async (scheduleId, latitude, longitude) => {
       set({ isLoading: true, error: null });
@@ -81,7 +117,7 @@ export const useScheduleStore = create((set, get) => {
       }
     },
     //** FORCE UPDATE FOR ADMIN
-    updateSchedule: async (
+    updateAttendance: async (
       id,
       scheduleId,
       clockIn,
@@ -104,19 +140,19 @@ export const useScheduleStore = create((set, get) => {
         });
         set({ attendance: response.data.attendance, isLoading: false });
         toast.success("Success update attendance");
-        await get().fetchSchedules(); // refresh list
+        await get().fetchAttendances(); // refresh list
       } catch (error) {
         handleError(error, "Error updating attendance");
       }
     },
     //** DELETE
-    deleteSchedule: async (id) => {
+    deleteAttendance: async (id) => {
       set({ isLoading: true, error: null });
       try {
         await axios.delete(`${API_URL}attendance/delete/${id}`);
         set({ isLoading: false });
         toast.success("Success delete attendance");
-        await get().fetchSchedules(); // refresh list
+        await get().fetchAttendances(); // refresh list
       } catch (error) {
         handleError(error, "Error deleting attendance");
       }

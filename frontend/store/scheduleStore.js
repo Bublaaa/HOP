@@ -33,6 +33,17 @@ export const useScheduleStore = create((set, get) => {
         handleError(error, "Error fetching schedules");
       }
     },
+
+    fetchScheduleDetail: async (id) => {
+      set({ isLoading: true, error: null });
+      try {
+        const response = await axios.get(`${API_URL}schedule/getDetail/${id}`);
+        set({ schedule: response.data.schedule, isLoading: false });
+      } catch (error) {
+        handleError(error, "Error fetching schedule detail");
+      }
+    },
+
     fetchScheduleToday: async (userId) => {
       set({ isLoading: true, error: null });
       try {

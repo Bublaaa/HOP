@@ -1,25 +1,23 @@
-import { motion } from "framer-motion";
-import { Mail, User } from "lucide-react";
-import { useNavigate, useParams } from "react-router-dom";
-import { Input } from "../../components/Input.jsx";
-import { useEffect, useState } from "react";
-import { useAuthStore } from "../../../store/authStore.js";
-import { toast } from "react-hot-toast";
-import Button from "../../components/Button.jsx";
-import ShiftProgressBar from "../../components/ShiftProgressBar.jsx";
-import { useScheduleStore } from "../../../store/scheduleStore.js";
-import { useOutpostStore } from "../../../store/outpostStore.js";
-import { useShiftStore } from "../../../store/shiftStore.js";
-import { toTitleCase } from "../../utils/toTitleCase.js";
-import { formatTime } from "../../utils/dateFormatter.js";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "../../../store/authStore";
+import { useScheduleStore } from "../../../store/scheduleStore";
+import { useAttendanceStore } from "../../../store/attendanceStore";
+import { useOutpostStore } from "../../../store/outpostStore";
+import { useShiftStore } from "../../../store/shiftStore";
+import { formatTimeToHours } from "../../utils/dateFormatter";
+import Button from "../../components/Button";
+import { getShiftStatus } from "../../utils/dateHelper";
+import { toTitleCase } from "../../utils/toTitleCase";
 
 const OverviewPage = () => {
+  const navigate = useNavigate();
   const { user } = useAuthStore();
   const { schedules, fetchScheduleToday } = useScheduleStore();
-  const { shifts, fetchShifts } = useShiftStore();
+  const { attendancesByScheduleId, fetchScheduleAttendance } =
+    useAttendanceStore();
   const { outposts, fetchOutposts } = useOutpostStore();
-
-  const navigate = useNavigate();
+  const { shifts, fetchShifts } = useShiftStore();
 
   useEffect(() => {
     if (user) {
@@ -27,58 +25,122 @@ const OverviewPage = () => {
       fetchOutposts();
       fetchShifts();
     }
-  }, [user, fetchScheduleToday, fetchOutposts, fetchShifts]);
+  }, [user]);
+
+  useEffect(() => {
+    if (schedules.length) {
+      schedules.forEach((schedule) => {
+        fetchScheduleAttendance(schedule._id);
+      });
+    }
+  }, [schedules]);
+
+  const getOutpostName = (id) =>
+    toTitleCase(outposts.find((outpost) => outpost._id === id)?.name || "-");
+
+  const getShiftDetail = (id) => {
+    const shift = shifts.find((s) => s._id === id);
+    if (!shift) return "-";
+    return `${toTitleCase(shift.name)} (${formatTimeToHours(
+      shift.startTime
+    )} - ${formatTimeToHours(shift.endTime)})`;
+  };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className="max-w-md w-full bg-white bg-opacity-50 backdrop-filter backdrop-blur-xl rounded-2xl shadow-xl overflow-hidden mx-2"
-    >
-      <div className="p-8 flex flex-col  gap-5">
-        <h5 className="mb-6 text-center bg-clip-text">Your Schedule Today</h5>
-        <div className="grid grid-cols-2 gap-5 items-center text-center">
-          <h6 className="font-semibold">Outpost</h6>
-          <h6 className="font-semibold">Shift</h6>
-        </div>
+    <div className="flex max-w-3lg flex-col gap-5 bg-white rounded-lg mx-2 shadow-md">
+      <div className="overflow-x-auto w-full rounded-lg ">
+        <table className="table w-full text-sm">
+          <thead className="bg-accent text-white">
+            <tr>
+              <th className="p-2">Clock In</th>
+              <th className="p-2">Clock Out</th>
+              <th className="p-2">Outpost</th>
+              <th className="p-2">Shift</th>
+              <th className="p-2">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {schedules.map((schedule) => {
+              const attendance = attendancesByScheduleId[schedule._id];
+              const shift = shifts.find((s) => s._id === schedule.shiftId);
+              const shiftStatus = shift
+                ? getShiftStatus(shift.startTime, shift.endTime)
+                : null;
 
-        {schedules.map((schedule) => {
-          const outpost = outposts.find((o) => o._id === schedule.outpostId);
-          const shift = shifts.find((s) => s._id === schedule.shiftId);
+              return (
+                <tr key={schedule._id} className="odd:bg-gray-50 even:bg-white">
+                  <td className="p-2 text-center">
+                    {attendance?.clockIn ? "✅" : "❌"}
+                  </td>
+                  <td className="p-2 text-center">
+                    {attendance?.clockOut ? "✅" : "❌"}
+                  </td>
+                  <td className="p-2">{getOutpostName(schedule.outpostId)}</td>
+                  <td className="p-2">{getShiftDetail(schedule.shiftId)}</td>
+                  <td className="p-2 text-center">
+                    {!shift ? (
+                      "-"
+                    ) : !attendance ? (
+                      (() => {
+                        if (!shiftStatus) {
+                          return (
+                            <p className="text-red-400">No shift status</p>
+                          );
+                        }
 
-          return (
-            <div
-              className="grid grid-cols-2 gap-5 items-center text-center"
-              key={schedule._id}
-            >
-              <p>{toTitleCase(outpost?.name) ?? "Unknown Outpost"}</p>
-              <div className="flex flex-col items-center">
-                <p>{toTitleCase(shift?.name) ?? "Unknown Shift"}</p>
-                <p>
-                  {formatTime(shift?.startTime)} - {formatTime(shift?.endTime)}
-                </p>
-                <ShiftProgressBar
-                  startTime={shift?.startTime}
-                  endTime={shift?.endTime}
-                />
-              </div>
-            </div>
-          );
-        })}
-
-        <div className="space-y-5">
-          <Button
-            buttonSize="large"
-            buttonType="primary"
-            type="submit"
-            className="w-full"
-          >
-            Save
-          </Button>
-        </div>
+                        switch (shiftStatus) {
+                          case "ongoing":
+                            return (
+                              <Button
+                                buttonType="primary"
+                                onClick={() => navigate("/security/clock-in")}
+                              >
+                                Clock In
+                              </Button>
+                            );
+                          case "about-to-start":
+                            return (
+                              <p className="text-yellow-600">
+                                Shift about to start
+                              </p>
+                            );
+                          case "not-started-yet":
+                            return (
+                              <p className="text-gray-500">
+                                Shift not started yet
+                              </p>
+                            );
+                          case "finished":
+                            return (
+                              <p className="text-gray-400">Shift finished</p>
+                            );
+                          default:
+                            return (
+                              <p className="text-red-400">
+                                Unknown shift status
+                              </p>
+                            );
+                        }
+                      })()
+                    ) : attendance.clockIn ? (
+                      <Button
+                        buttonType="secondary"
+                        onClick={() => navigate("/security/scan-qr")}
+                      >
+                        Scan QR
+                      </Button>
+                    ) : (
+                      "-"
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
       </div>
-    </motion.div>
+    </div>
   );
 };
+
 export default OverviewPage;
