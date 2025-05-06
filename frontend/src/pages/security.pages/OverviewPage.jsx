@@ -19,6 +19,7 @@ const OverviewPage = () => {
     fetchScheduleToday,
     isLoading: isScheduleLoading,
   } = useScheduleStore();
+
   const {
     attendancesByScheduleId,
     fetchScheduleAttendance,

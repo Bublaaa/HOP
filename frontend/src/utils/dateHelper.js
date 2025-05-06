@@ -42,10 +42,10 @@ export const getShiftStatus = (startTime, endTime) => {
     return "not-started-yet";
   } else if (
     nowTimeInMinutes >= startTimeInMinutes - 15 &&
-    nowTimeInMinutes < adjustedEndTime
+    nowTimeInMinutes < endTimeInMinutes
   ) {
     return "ongoing";
-  } else if (nowTimeInMinutes >= adjustedEndTime) {
+  } else if (nowTimeInMinutes >= endTimeInMinutes) {
     return "finished";
   }
 
