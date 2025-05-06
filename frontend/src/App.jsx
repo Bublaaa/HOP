@@ -52,6 +52,22 @@ const CreateSingleSchedulePage = lazy(() =>
 );
 
 const QrCodePage = lazy(() => import("./pages/outpost.pages/QrCodePage.jsx"));
+const SchedulesOutpostPage = lazy(() =>
+  import("./pages/outpost.pages/SchedulesOutpostPage.jsx")
+);
+
+const ClockInPage = lazy(() =>
+  import("./pages/security.pages/ClockInPage.jsx")
+);
+const ClockOutPage = lazy(() =>
+  import("./pages/security.pages/ClockOutPage.jsx")
+);
+const OverviewPage = lazy(() =>
+  import("./pages/security.pages/OverviewPage.jsx")
+);
+const SchedulesSecurityPage = lazy(() =>
+  import("./pages/security.pages/SchedulesSecurityPage.jsx")
+);
 
 // Protect routes that require authentication
 const ProtectedRoute = ({ children, requiredRole }) => {
@@ -110,7 +126,6 @@ function App() {
     <div className="h-screen w-full bg-white-shadow flex items-center justify-center overflow-hidden">
       <Routes>
         {/* <Route path="/" element={<RedirectToRoleBasedDashboard />} /> */}
-
         {/*  Admin Routes  * */}
         <Route
           path="/admin"
@@ -124,6 +139,8 @@ function App() {
             </ProtectedRoute>
           }
         >
+          <Route index element={<Navigate to="schedules" replace />} />
+
           <Route
             path="users"
             element={
@@ -229,7 +246,6 @@ function App() {
             }
           />
         </Route>
-
         {/* Outpost Routes */}
         <Route
           path="/outpost"
@@ -252,18 +268,62 @@ function App() {
               </Suspense>
             }
           />
+          <Route
+            path="schedules"
+            element={
+              <Suspense>
+                <SchedulesOutpostPage />
+              </Suspense>
+            }
+          />
         </Route>
         {/* Security Routes */}
         <Route
           path="/security"
           element={
             <ProtectedRoute requiredRole="security">
-              <Suspense>
+              <Suspense
+                fallback={<Loader className="w-6h-6 animate-spin mx-auto" />}
+              >
                 <SecurityDashboard />
               </Suspense>
             </ProtectedRoute>
           }
-        ></Route>
+        >
+          <Route index element={<Navigate to="overview" replace />} />
+          <Route
+            path="overview"
+            element={
+              <Suspense>
+                <OverviewPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="clock-in"
+            element={
+              <Suspense>
+                <ClockInPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="clock-out"
+            element={
+              <Suspense>
+                <ClockOutPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="schedules"
+            element={
+              <Suspense>
+                <SchedulesSecurityPage />
+              </Suspense>
+            }
+          />
+        </Route>
         <Route
           path="/login"
           element={

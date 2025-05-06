@@ -75,12 +75,12 @@ const QrCOdePage = () => {
     //** MAX DISTANCE 15 METERS
     if (minDistance <= 15) {
       setNearestOutpost(nearest);
-      toast.success(
-        `✅ Nearest outpost: ${nearest.name} (${minDistance.toFixed(2)} m)`
-      );
+      // toast.success(
+      //   `Nearest outpost: ${nearest.name} (${minDistance.toFixed(2)} m)`
+      // );
     } else {
       setNearestOutpost(null);
-      toast.error("❌ No nearby outpost found (must be within 15 meters)");
+      // toast.error("No nearby outpost found (must be within 15 meters)");
     }
   };
   //** FETCH INITIAL DATA
@@ -103,7 +103,7 @@ const QrCOdePage = () => {
     }
   }, [fetchQrCode, nearestOutpost]);
 
-  // LOADING EXCEPTION
+  //** LOADING EXCEPTION
   if (isOutpostLoading || isShiftLoading) {
     return <Loader className="w-6 h-6 animate-spin mx-auto" />;
   }
@@ -116,40 +116,36 @@ const QrCOdePage = () => {
         className="flex flex-row w-full items-center justify-between"
       >
         <h6>Outpost QR Code</h6>
+        <Button
+          buttonSize="medium"
+          buttonType={isLocating ? "disabled" : "primary"}
+          icon={MapPinnedIcon}
+          onClick={() => checkLocationPermission()}
+        >
+          {isLocating ? "Calibrating..." : "Recalibrate"}
+        </Button>
       </motion.div>
-      {qrCode && nearestOutpost ? (
+
+      {/* QR CONDITIONAL RENDER */}
+      {!isLocating && nearestOutpost && qrCode ? (
         <div className="flex justify-center items-center">
           <img src={qrCode} alt="Attendance QR Code" className="w-48 h-48" />
         </div>
+      ) : !isLocating && !qrCode ? (
+        <h6 className="text-center text-red-500">
+          {error || "QR Code unavailable"}
+        </h6>
       ) : (
-        <h2 className="text-center text-red-500">{error}</h2>
-      )}
-      {nearestOutpost && (
-        <div className="p-2 text-center bg-green-100 rounded-lg text-green-600">
-          <strong>{toTitleCase(nearestOutpost.name)}</strong>
-        </div>
+        isLocating && <Loader className="w-6 h-6 animate-spin mx-auto" />
       )}
 
-      <div className="grid grid-cols-2 gap-5">
-        {/* Start Time Picker */}
-        <div className="flex flex-col gap-2 items-center">
-          <h6>Latitude</h6>
-          {isLocating ? (
-            <Loader className="w-6 h-6 animate-spin mx-auto" />
-          ) : locationGranted === true ? (
-            <p>{latitude}</p>
-          ) : null}
+      {/* NEAREST OUTPOST  */}
+      {nearestOutpost && !isLocating && (
+        <div className="text-center rounded-lg">
+          <h6>{toTitleCase(nearestOutpost.name)}</h6>
         </div>
-
-        <div className="flex flex-col gap-2 items-center">
-          <h6>Longitude</h6>
-          {isLocating ? (
-            <Loader className="w-6 h-6 animate-spin mx-auto" />
-          ) : locationGranted === true ? (
-            <p>{longitude}</p>
-          ) : null}
-        </div>
-      </div>
+      )}
+      {/* LOCATION PERMISSION CHECK */}
       {locationGranted === null && (
         <div className="p-2 items-center text-center bg-yellow-100 rounded-lg">
           <p className="text-yellow-500">Checking location permission</p>
@@ -162,14 +158,6 @@ const QrCOdePage = () => {
           </p>
         </div>
       )}
-      <Button
-        buttonSize="large"
-        buttonType={isLocating ? "disabled" : "primary"}
-        icon={MapPinnedIcon}
-        onClick={() => checkLocationPermission()}
-      >
-        {isLocating ? "Calibrating..." : "Recalibrate"}
-      </Button>
     </form>
   );
 };

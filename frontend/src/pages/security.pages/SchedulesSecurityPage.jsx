@@ -11,16 +11,12 @@ import { useOutpostStore } from "../../../store/outpostStore";
 import ScheduleTable from "../../components/ScheduleTable.jsx";
 import { getDateRangeOfCurrentMonth } from "../../utils/dateHelper.js";
 
-const SchedulesPage = ({}) => {
+const SchedulesSecurityPage = ({}) => {
   //** SELECTED OUTPOST
   const [selectedOutpost, setSelectedOutpost] = useState("");
 
   //** ZUSTAND FUNCTION
-  const {
-    users,
-    fetchAllSecurities,
-    isLoading: isUserLoading,
-  } = useAuthStore();
+  const { user, fetchAllSecurities, isLoading: isUserLoading } = useAuthStore();
   const { shifts, fetchShifts, isLoading: isShiftLoading } = useShiftStore();
   const {
     outposts,
@@ -47,7 +43,7 @@ const SchedulesPage = ({}) => {
       setSelectedOutpost(outposts[0]);
     }
   }, [outposts]);
-
+  const users = [user];
   //** GET THIS MONTH DATES RANGE
   const { firstHalf, secondHalf } = getDateRangeOfCurrentMonth();
 
@@ -68,12 +64,7 @@ const SchedulesPage = ({}) => {
         transition={{ duration: 0.5 }}
         className="flex flex-row w-full items-center p-4 bg-white rounded-lg justify-between"
       >
-        <h6>Manage Schedules</h6>
-        <NavLink to={"/admin/add-schedules"}>
-          <Button buttonType="primary" buttonSize="medium" icon={Plus}>
-            Add Schedule
-          </Button>
-        </NavLink>
+        <h6>User Schedules</h6>
       </motion.div>
       <div className="flex flex-wrap gap-2 w-full">
         {outposts.map((outpost, index) => {
@@ -96,23 +87,23 @@ const SchedulesPage = ({}) => {
       <div className="space-y-2">
         <ScheduleTable
           selectedOutpost={selectedOutpost}
-          users={users}
+          users={[user]}
           shifts={shifts}
           schedules={schedules}
           dateRange={firstHalf}
-          action={"edit"}
+          action={"read"}
         />
         <ScheduleTable
           selectedOutpost={selectedOutpost}
-          users={users}
+          users={[user]}
           shifts={shifts}
           schedules={schedules}
           dateRange={secondHalf}
-          action={"edit"}
+          action={"read"}
         />
       </div>
     </div>
   );
 };
 
-export default SchedulesPage;
+export default SchedulesSecurityPage;

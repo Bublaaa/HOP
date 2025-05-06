@@ -1,17 +1,15 @@
 import { useEffect, useState } from "react";
 import { useScheduleStore } from "../../../store/scheduleStore.js";
-import { Plus, Loader } from "lucide-react";
+import { Loader } from "lucide-react";
 import { toTitleCase } from "../../utils/toTitleCase.js";
-import { NavLink } from "react-router-dom";
 import { motion } from "framer-motion";
-import Button from "../../components/Button.jsx";
 import { useAuthStore } from "../../../store/authStore.js";
 import { useShiftStore } from "../../../store/shiftStore.js";
 import { useOutpostStore } from "../../../store/outpostStore";
 import ScheduleTable from "../../components/ScheduleTable.jsx";
 import { getDateRangeOfCurrentMonth } from "../../utils/dateHelper.js";
 
-const SchedulesPage = ({}) => {
+const SchedulesOutpostPage = ({}) => {
   //** SELECTED OUTPOST
   const [selectedOutpost, setSelectedOutpost] = useState("");
 
@@ -68,12 +66,7 @@ const SchedulesPage = ({}) => {
         transition={{ duration: 0.5 }}
         className="flex flex-row w-full items-center p-4 bg-white rounded-lg justify-between"
       >
-        <h6>Manage Schedules</h6>
-        <NavLink to={"/admin/add-schedules"}>
-          <Button buttonType="primary" buttonSize="medium" icon={Plus}>
-            Add Schedule
-          </Button>
-        </NavLink>
+        <h6>Schedules</h6>
       </motion.div>
       <div className="flex flex-wrap gap-2 w-full">
         {outposts.map((outpost, index) => {
@@ -100,7 +93,6 @@ const SchedulesPage = ({}) => {
           shifts={shifts}
           schedules={schedules}
           dateRange={firstHalf}
-          action={"edit"}
         />
         <ScheduleTable
           selectedOutpost={selectedOutpost}
@@ -108,11 +100,10 @@ const SchedulesPage = ({}) => {
           shifts={shifts}
           schedules={schedules}
           dateRange={secondHalf}
-          action={"edit"}
         />
       </div>
     </div>
   );
 };
 
-export default SchedulesPage;
+export default SchedulesOutpostPage;

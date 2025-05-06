@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { formatDate } from "../src/utils/dateFormatter";
 
 const API_URL =
   import.meta.env.MODE === "development"
@@ -32,13 +33,17 @@ export const useScheduleStore = create((set, get) => {
         handleError(error, "Error fetching schedules");
       }
     },
-    fetchScheduleDetail: async (id) => {
+    fetchScheduleToday: async (userId) => {
       set({ isLoading: true, error: null });
       try {
-        const response = await axios.get(`${API_URL}schedule/getDetail/${id}`);
-        set({ schedule: response.data.schedule, isLoading: false });
+        const response = await axios.get(`${API_URL}schedule/getAll`);
+        const today = new Date().toISOString();
+        const filtered = response.data.schedules.filter(
+          (s) => s.userId === userId && formatDate(s.date) == formatDate(today)
+        );
+        set({ schedules: filtered, isLoading: false });
       } catch (error) {
-        handleError(error, "Error fetching schedule");
+        handleError(error, "Error fetching today's schedule");
       }
     },
 
