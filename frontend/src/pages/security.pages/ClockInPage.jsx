@@ -10,6 +10,9 @@ import ShiftProgressBar from "../../components/ShiftProgressBar.jsx";
 import { useScheduleStore } from "../../../store/scheduleStore.js";
 import { useOutpostStore } from "../../../store/outpostStore.js";
 import { useShiftStore } from "../../../store/shiftStore.js";
+import { useAttendanceStore } from "../../../store/attendanceStore.js";
+import { requestLocation } from "../../utils/location.js";
+import QrScanner from "../../components/QrScanner.jsx";
 import { toTitleCase } from "../../utils/toTitleCase.js";
 import { formatTime } from "../../utils/dateFormatter.js";
 
@@ -18,8 +21,40 @@ const ClockInPage = () => {
   const { schedules, fetchScheduleToday } = useScheduleStore();
   const { shifts, fetchShifts } = useShiftStore();
   const { outposts, fetchOutposts } = useOutpostStore();
+  const { handleScanSuccess } = useAttendanceStore();
+  const [locationGranted, setLocationGranted] = useState(null);
+  const [latitude, setLatitude] = useState(0);
+  const [longitude, setLongitude] = useState(0);
+  const [isLocating, setIsLocating] = useState(false);
 
-  const navigate = useNavigate();
+  //** GET LOCATION PERMISSION
+  const checkLocationPermission = async () => {
+    setIsLocating(true);
+    try {
+      const coords = await requestLocation();
+      setTimeout(() => {
+        setLatitude(coords.latitude);
+        setLongitude(coords.longitude);
+        setLocationGranted(true);
+        setIsLocating(false); // done
+      }, 3000);
+    } catch (error) {
+      console.error("Location permission denied:", error);
+      setLocationGranted(false);
+      setIsLocating(false);
+    }
+  };
+
+  useEffect(() => {
+    checkLocationPermission();
+  }, []);
+
+  const handleScan = (data) => {
+    console.log(data);
+    if (data) {
+      handleScanSuccess(data, user._id, location);
+    }
+  };
 
   useEffect(() => {
     if (user) {
@@ -37,42 +72,20 @@ const ClockInPage = () => {
       className="max-w-md w-full bg-white bg-opacity-50 backdrop-filter backdrop-blur-xl rounded-2xl shadow-xl overflow-hidden mx-2"
     >
       <div className="p-8 flex flex-col  gap-5">
-        <h5 className="mb-6 text-center bg-clip-text">Clock In</h5>
-
-        {schedules.map((schedule) => {
-          const outpost = outposts.find((o) => o._id === schedule.outpostId);
-          const shift = shifts.find((s) => s._id === schedule.shiftId);
-
-          return (
-            <div
-              className="grid grid-cols-2 gap-5 items-center text-center"
-              key={schedule._id}
-            >
-              <p>{toTitleCase(outpost?.name) ?? "Unknown Outpost"}</p>
-              <div className="flex flex-col items-center">
-                <p>{toTitleCase(shift?.name) ?? "Unknown Shift"}</p>
-                <p>
-                  {formatTime(shift?.startTime)} - {formatTime(shift?.endTime)}
-                </p>
-                <ShiftProgressBar
-                  startTime={shift?.startTime}
-                  endTime={shift?.endTime}
-                />
-              </div>
-            </div>
-          );
-        })}
-
-        <div className="space-y-5">
-          <Button
-            buttonSize="large"
-            buttonType="primary"
-            type="submit"
-            className="w-full"
-          >
-            Save
-          </Button>
-        </div>
+        <h5 className="text-center bg-clip-text">Clock In</h5>
+        <motion.div
+          className="p-4 rounded-lg bg-gray-100"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+        >
+          <h3 className="text-xl font-semibold mb-3">Scan the QR</h3>
+          {locationGranted === null && <p>Checking location permission...</p>}
+          {locationGranted === false && (
+            <p>❌ Location permission is required for attendance.</p>
+          )}
+          {locationGranted === true && <QrScanner onScanSuccess={handleScan} />}
+        </motion.div>
       </div>
     </motion.div>
   );

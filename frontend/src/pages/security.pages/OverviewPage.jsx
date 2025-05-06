@@ -6,16 +6,24 @@ import { useAttendanceStore } from "../../../store/attendanceStore";
 import { useOutpostStore } from "../../../store/outpostStore";
 import { useShiftStore } from "../../../store/shiftStore";
 import { formatTimeToHours } from "../../utils/dateFormatter";
-import Button from "../../components/Button";
 import { getShiftStatus } from "../../utils/dateHelper";
 import { toTitleCase } from "../../utils/toTitleCase";
+import { Loader } from "lucide-react";
+import Button from "../../components/Button";
 
 const OverviewPage = () => {
   const navigate = useNavigate();
   const { user } = useAuthStore();
-  const { schedules, fetchScheduleToday } = useScheduleStore();
-  const { attendancesByScheduleId, fetchScheduleAttendance } =
-    useAttendanceStore();
+  const {
+    schedules,
+    fetchScheduleToday,
+    isLoading: isScheduleLoading,
+  } = useScheduleStore();
+  const {
+    attendancesByScheduleId,
+    fetchScheduleAttendance,
+    isLoading: isAttendanceLoading,
+  } = useAttendanceStore();
   const { outposts, fetchOutposts } = useOutpostStore();
   const { shifts, fetchShifts } = useShiftStore();
 
@@ -45,6 +53,10 @@ const OverviewPage = () => {
       shift.startTime
     )} - ${formatTimeToHours(shift.endTime)})`;
   };
+
+  if (isScheduleLoading || isAttendanceLoading) {
+    return <Loader className="w-6 h-6 animate-spin mx-auto" />;
+  }
 
   return (
     <div className="flex max-w-3lg flex-col gap-5 bg-white rounded-lg mx-2 shadow-md">

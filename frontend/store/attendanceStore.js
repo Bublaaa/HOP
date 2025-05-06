@@ -157,5 +157,29 @@ export const useAttendanceStore = create((set, get) => {
         handleError(error, "Error deleting attendance");
       }
     },
+    handleScanSuccess: async (scannedData, userId, location) => {
+      set({ isLoading: true, error: null, message: null });
+      try {
+        set({ message: "Sending attendance..." });
+
+        const response = await axios.post(scannedData, { userId, location });
+
+        if (response.data.success) {
+          set({
+            attendances: response.data.attendance,
+            isLoading: false,
+            message: "✅ Attendance recorded successfully!",
+          });
+          toast("Attendance recorded successfully!");
+        } else {
+          throw new Error(response.data.message);
+        }
+      } catch (error) {
+        const errorMessage =
+          error.response?.data?.message || "❌ Error submitting attendance";
+        set({ error: errorMessage, isLoading: false });
+        toast.error(errorMessage);
+      }
+    },
   };
 });

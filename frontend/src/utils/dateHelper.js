@@ -23,7 +23,6 @@ export const getDateRangeOfCurrentMonth = () => {
 export const getShiftStatus = (startTime, endTime) => {
   const getTimeInMinutes = (timeStr) => {
     const [hours, minutes] = timeStr.split(":").map(Number);
-    console.log(hours, minutes);
     return hours * 60 + minutes;
   };
 
