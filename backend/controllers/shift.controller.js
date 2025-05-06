@@ -149,11 +149,13 @@ export const generateQrCode = async (req, res) => {
   const { outpostId } = req.body;
   try {
     const shifts = await Shift.find().sort({ name: 1 });
-    const sessionId = generateAttendanceSession(shifts);
+    const shiftId = generateAttendanceSession(shifts);
     // ** THIS IS URL TO BE SEND
-    const attendanceUrl = `${API_URL}attendance/create/${outpostId}-${sessionId}`;
+    // http://localhost:5002/api/attendance/create/6817750d7585ef35a8b1c007-sore
+    // http://localhost:5002/api/attendance/6817750d7585ef35a8b1c007/68139cacf2ca72aff66a1e0e/clock-in
+    const attendanceUrl = `${API_URL}attendance/${outpostId}/${shiftId}`;
     const qrCodeDataUrl = await QRCode.toDataURL(attendanceUrl);
-    if (!sessionId) {
+    if (!shiftId) {
       return res.status(400).json({
         success: false,
         message: "No active shift found for this time.",
@@ -166,7 +168,7 @@ export const generateQrCode = async (req, res) => {
     }
     res.status(200).json({
       success: true,
-      sessionId,
+      shiftId,
       qrCode: qrCodeDataUrl, // base64 image
       attendanceUrl,
     });

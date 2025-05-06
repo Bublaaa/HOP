@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { findScheduleId } from "../src/utils/scheduleHelper";
 
 const API_URL =
   import.meta.env.MODE === "development"
@@ -157,12 +158,102 @@ export const useAttendanceStore = create((set, get) => {
         handleError(error, "Error deleting attendance");
       }
     },
-    handleScanSuccess: async (scannedData, userId, location) => {
+
+    handleScanClockInSuccess: async (
+      scannedData,
+      userId,
+      latitude,
+      longitude
+    ) => {
+      set({ isLoading: true, error: null });
+      try {
+        const scheduleResponse = await axios.get(`${API_URL}schedule/getAll`);
+        const schedules = scheduleResponse.data.schedules;
+
+        const [baseUrl, outpostId, shiftId] = (() => {
+          const parts = scannedData.split("/");
+          const shiftId = parts.pop();
+          const outpostId = parts.pop();
+          const baseUrl = parts.join("/");
+          return [baseUrl, outpostId, shiftId];
+        })();
+
+        const scheduleId = findScheduleId(
+          schedules,
+          userId,
+          outpostId,
+          shiftId
+        );
+        toast.success(scheduleId);
+
+        console.log("scheduleId : ", scheduleId);
+        const response = await axios.post(baseUrl + "/clock-in", {
+          scheduleId: scheduleId,
+          latitude: latitude,
+          longitude: longitude,
+        });
+        set({ attendance: response.data.attendance });
+        toast.success("Success create attendance");
+      } catch (error) {
+        handleError(error, "Error creating attendance");
+      }
+    },
+    handleScanClockOutSuccess: async (
+      id,
+      scannedData,
+      scheduleId,
+      latitude,
+      longitude,
+      report
+    ) => {
       set({ isLoading: true, error: null, message: null });
       try {
+        const scheduleResponse = await axios.get(`${API_URL}schedule/getAll`);
+        const schedules = scheduleResponse.data.schedules;
+
+        const urlParts = scannedData.split("/");
+        const outpostId = urlParts[urlParts.length - 2];
+        const shiftId = urlParts[urlParts.length - 1];
+
+        const response = await axios.put(scannedData + `/clock-out/${id}`, {
+          scheduleId,
+          latitude,
+          longitude,
+          report,
+        });
+      } catch (error) {
+        handleError(error, "Error updating attendance");
+      }
+    },
+
+    handleScanSuccess: async (
+      scannedData,
+      userId,
+      latitude,
+      longitude,
+      action
+    ) => {
+      set({ isLoading: true, error: null, message: null });
+      try {
+        if (action === "clock-out") {
+        }
+
+        router.post("/clock-in", punchIn);
+        router.put("/clock-out/:id", punchOut);
+
         set({ message: "Sending attendance..." });
 
-        const response = await axios.post(scannedData, { userId, location });
+        const createResponse = await axios.post(scannedData + "/" + action, {
+          userId,
+          location,
+        });
+        const updateResponse = await axios.put(
+          scannedData + "/" + action + "/",
+          {
+            id,
+            location,
+          }
+        );
 
         if (response.data.success) {
           set({

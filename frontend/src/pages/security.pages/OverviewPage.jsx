@@ -138,9 +138,9 @@ const OverviewPage = () => {
                     ) : attendance.clockIn ? (
                       <Button
                         buttonType="secondary"
-                        onClick={() => navigate("/security/scan-qr")}
+                        onClick={() => navigate("/security/clock-out")}
                       >
-                        Scan QR
+                        Clock Out
                       </Button>
                     ) : (
                       "-"

@@ -47,10 +47,20 @@ export const punchIn = async (req, res) => {
   let status = "empty";
   try {
     const clockIn = Date.now();
-    if (!scheduleId || !latitude || !longitude) {
+    if (!scheduleId) {
       return res
         .status(400)
-        .json({ success: false, message: "All fields are required" });
+        .json({ success: false, message: "Schedule id is empty" });
+    }
+    if (!latitude) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Latitude are required" });
+    }
+    if (!longitude) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Longitude are required" });
     }
     const isAlreadyExist = await Attendance.findOne({
       scheduleId: scheduleId,

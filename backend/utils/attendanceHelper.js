@@ -25,11 +25,11 @@ export const generateAttendanceSession = (shifts = []) => {
     // Handle overnight shift (e.g. 22:00 - 06:00)
     if (end < start) {
       if (now >= start || now <= end) {
-        return shift.name;
+        return shift.id;
       }
     } else {
       if (now >= start && now <= end) {
-        return shift.name;
+        return shift.id;
       }
     }
   }

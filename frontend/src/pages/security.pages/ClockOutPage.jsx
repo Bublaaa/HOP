@@ -1,22 +1,66 @@
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { useAuthStore } from "../../../store/authStore";
-import { useScheduleStore } from "../../../store/scheduleStore";
-import { useAttendanceStore } from "../../../store/attendanceStore";
-import { useOutpostStore } from "../../../store/outpostStore";
-import { useShiftStore } from "../../../store/shiftStore";
-import { formatTimeToHours } from "../../utils/dateFormatter";
-import Button from "../../components/Button";
-import { getShiftStatus } from "../../utils/dateHelper";
+import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
+import { useAuthStore } from "../../../store/authStore.js";
+import { useScheduleStore } from "../../../store/scheduleStore.js";
+import { useOutpostStore } from "../../../store/outpostStore.js";
+import { useShiftStore } from "../../../store/shiftStore.js";
+import { useAttendanceStore } from "../../../store/attendanceStore.js";
+import { requestLocation } from "../../utils/location.js";
+import { toTitleCase } from "../../utils/toTitleCase.js";
+import { formatTimeToHours } from "../../utils/dateFormatter.js";
+import { getShiftStatus } from "../../utils/dateHelper.js";
+import { ClipboardPen, Loader } from "lucide-react";
+import { NavLink } from "react-router-dom";
+import { Input } from "../../components/Input.jsx";
+import QrScanner from "../../components/QrScanner.jsx";
+import Button from "../../components/Button.jsx";
 
 const ClockOutPage = () => {
-  const navigate = useNavigate();
   const { user } = useAuthStore();
-  const { schedules, fetchScheduleToday } = useScheduleStore();
-  const { attendancesByScheduleId, fetchScheduleAttendance } =
-    useAttendanceStore();
-  const { outposts, fetchOutposts } = useOutpostStore();
+  const {
+    schedules,
+    fetchScheduleToday,
+    isLoading: isScheduleLoading,
+  } = useScheduleStore();
+
+  const {
+    attendancesByScheduleId,
+    fetchScheduleAttendance,
+    isLoading: isAttendanceLoading,
+    handleScanClockOutSuccess,
+  } = useAttendanceStore();
+
   const { shifts, fetchShifts } = useShiftStore();
+  const { outposts, fetchOutposts } = useOutpostStore();
+
+  const [isClockedIn, setIsClockedIn] = useState(false);
+  const [locationGranted, setLocationGranted] = useState(null);
+  const [report, setReport] = useState("");
+  const [latitude, setLatitude] = useState(0);
+  const [longitude, setLongitude] = useState(0);
+  const [isLocating, setIsLocating] = useState(false);
+
+  // Get location permission
+  const checkLocationPermission = async () => {
+    setIsLocating(true);
+    try {
+      const coords = await requestLocation();
+      setTimeout(() => {
+        setLatitude(coords.latitude);
+        setLongitude(coords.longitude);
+        setLocationGranted(true);
+        setIsLocating(false);
+      }, 3000);
+    } catch (error) {
+      console.error("Location permission denied:", error);
+      setLocationGranted(false);
+      setIsLocating(false);
+    }
+  };
+
+  useEffect(() => {
+    checkLocationPermission();
+  }, []);
 
   useEffect(() => {
     if (user) {
@@ -34,101 +78,110 @@ const ClockOutPage = () => {
     }
   }, [schedules]);
 
-  const getOutpostName = (id) =>
-    outposts.find((outpost) => outpost._id === id)?.name || "-";
+  useEffect(() => {
+    let clockedIn = false;
 
-  const getShiftDetail = (id) => {
-    const shift = shifts.find((s) => s._id === id);
-    if (!shift) return "-";
-    return `${shift.name} (${formatTimeToHours(
-      shift.startTime
-    )} - ${formatTimeToHours(shift.endTime)})`;
+    schedules.forEach((schedule) => {
+      const attendance = attendancesByScheduleId[schedule._id];
+      const shift = shifts.find((shift) => shift._id === schedule.shiftId);
+      const shiftStatus = shift
+        ? getShiftStatus(shift.startTime, shift.endTime)
+        : null;
+
+      if (shiftStatus === "ongoing" && attendance?.clockIn) {
+        clockedIn = true;
+      }
+    });
+
+    setIsClockedIn(clockedIn);
+  }, [schedules, attendancesByScheduleId, shifts]);
+
+  const handleScan = (data) => {
+    if (data) {
+      handleScanClockOutSuccess(
+        id,
+        data,
+        user._id,
+        latitude,
+        longitude,
+        "clock-out"
+      );
+    }
+  };
+
+  if (isScheduleLoading || isAttendanceLoading) {
+    return <Loader className="w-6 h-6 animate-spin mx-auto" />;
+  }
+
+  const ConditionalRenderElement = ({
+    locationGranted,
+    isLocating,
+    isClockedIn,
+  }) => {
+    if (isLocating) {
+      return <Loader className="w-6 h-6 animate-spin mx-auto" />;
+    }
+    if (!isClockedIn) {
+      return (
+        <div className="flex flex-col gap-2">
+          <p>You are not clocked in yet</p>
+          <NavLink to={"/security/clock-id"}>
+            <Button buttonType="primary" buttonSize="medium">
+              {" "}
+              Clock In
+            </Button>
+          </NavLink>
+        </div>
+      );
+    }
+    if (isClockedIn && locationGranted === true) {
+      return (
+        <Input
+          icon={ClipboardPen}
+          type="text"
+          placeholder="Report on duty"
+          value={report}
+          onChange={(e) => setReport(e.target.value)}
+        />
+      );
+    }
+    if (!report) {
+      return <QrScanner onScanSuccess={handleScan} />;
+    }
+
+    switch (locationGranted) {
+      case null:
+        return <p>Checking location permission...</p>;
+      case false:
+        return <p>❌ Location permission is required for attendance.</p>;
+      default:
+        return <p>Checking location permission...</p>;
+    }
   };
 
   return (
-    <div className="overflow-x-auto rounded-lg shadow-md mt-5">
-      <table className="table w-full text-sm">
-        <thead className="bg-accent text-white">
-          <tr>
-            <th className="p-2">Clock Out</th>
-            <th className="p-2">Outpost</th>
-            <th className="p-2">Shift</th>
-            <th className="p-2">Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {schedules.map((schedule) => {
-            const attendance = attendancesByScheduleId[schedule._id];
-            const shift = shifts.find((s) => s._id === schedule.shiftId);
-            const shiftStatus = shift
-              ? getShiftStatus(shift.startTime, shift.endTime)
-              : null;
-
-            return (
-              <tr key={schedule._id} className="odd:bg-gray-50 even:bg-white">
-                <td className="p-2 text-center">
-                  {attendance?.clockOut ? "✅" : "❌"}
-                </td>
-                <td className="p-2">{getOutpostName(schedule.outpostId)}</td>
-                <td className="p-2">{getShiftDetail(schedule.shiftId)}</td>
-                <td className="p-2 text-center">
-                  {!shift ? (
-                    "-"
-                  ) : !attendance ? (
-                    (() => {
-                      if (!shiftStatus) {
-                        return <p className="text-red-400">No shift status</p>;
-                      }
-
-                      switch (shiftStatus) {
-                        case "ongoing":
-                          return (
-                            <Button
-                              buttonType="primary"
-                              onClick={() => navigate("/security/clock-in")}
-                            >
-                              Clock In
-                            </Button>
-                          );
-                        case "about-to-start":
-                          return (
-                            <p className="text-yellow-600">
-                              Shift about to start
-                            </p>
-                          );
-                        case "not-started-yet":
-                          return (
-                            <p className="text-gray-500">
-                              Shift not started yet
-                            </p>
-                          );
-                        case "finished":
-                          return (
-                            <p className="text-gray-400">Shift finished</p>
-                          );
-                        default:
-                          return (
-                            <p className="text-red-400">Unknown shift status</p>
-                          );
-                      }
-                    })()
-                  ) : attendance.clockIn ? (
-                    <Button
-                      buttonType="secondary"
-                      onClick={() => navigate("/security/scan-qr")}
-                    >
-                      Scan QR
-                    </Button>
-                  ) : (
-                    "-"
-                  )}
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    </div>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="max-w-md w-full bg-white bg-opacity-50 backdrop-filter backdrop-blur-xl rounded-2xl shadow-xl overflow-hidden mx-2"
+    >
+      <div className="p-8 flex flex-col gap-5">
+        <h5 className="text-center bg-clip-text">Clock Out</h5>
+        <motion.div
+          className="p-4 rounded-lg bg-gray-100"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+        >
+          <ConditionalRenderElement
+            isLocating={isLocating}
+            isClockedIn={isClockedIn}
+            locationGranted={locationGranted}
+          />
+        </motion.div>
+      </div>
+    </motion.div>
   );
 };
 

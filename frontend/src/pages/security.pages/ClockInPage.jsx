@@ -24,7 +24,7 @@ const ClockInPage = () => {
     attendancesByScheduleId,
     fetchScheduleAttendance,
     isLoading: isAttendanceLoading,
-    handleScanSuccess,
+    handleScanClockInSuccess,
   } = useAttendanceStore();
 
   const { shifts, fetchShifts } = useShiftStore();
@@ -94,19 +94,8 @@ const ClockInPage = () => {
 
   const handleScan = (data) => {
     if (data) {
-      handleScanSuccess(data, user._id, { latitude, longitude });
+      handleScanClockInSuccess(data, user._id, latitude, longitude);
     }
-  };
-
-  const getOutpostName = (id) =>
-    toTitleCase(outposts.find((outpost) => outpost._id === id)?.name || "-");
-
-  const getShiftDetail = (id) => {
-    const shift = shifts.find((s) => s._id === id);
-    if (!shift) return "-";
-    return `${toTitleCase(shift.name)} (${formatTimeToHours(
-      shift.startTime
-    )} - ${formatTimeToHours(shift.endTime)})`;
   };
 
   if (isScheduleLoading || isAttendanceLoading) {
@@ -122,10 +111,17 @@ const ClockInPage = () => {
       return <Loader className="w-6 h-6 animate-spin mx-auto" />;
     }
 
-    if (!isClockedIn && locationGranted === true) {
+    if (
+      !isClockedIn &&
+      locationGranted === true &&
+      latitude != 0 &&
+      longitude != 0
+    ) {
       return <QrScanner onScanSuccess={handleScan} />;
     }
-
+    if (isClockedIn) {
+      return <p>Already clock in on this schedule</p>;
+    }
     switch (locationGranted) {
       case null:
         return <p>Checking location permission...</p>;
