@@ -78,7 +78,7 @@ const AddScheduleTable = ({
   };
 
   return (
-    <div>
+    <div className="overflow-x-auto rounded-lg shadow-md scrollbar-hidden">
       <table className="table w-full h-full text-sm">
         <thead className="bg-accent text-white">
           <tr>

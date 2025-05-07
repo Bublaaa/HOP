@@ -9,7 +9,7 @@ const AdminDashboard = () => {
   return (
     <div className="w-full flex flex-col space-y-5 h-screen items-end">
       {/* CONTENT */}
-      <div className="flex items-start justify-center w-full h-full overflow-y-auto scrollbar-hidden py-10 ">
+      <div className="flex justify-center items-end w-full h-full overflow-y-auto scrollbar-hidden py-10">
         <Outlet />
       </div>
       {/* NAVIGATION */}
