@@ -1,16 +1,15 @@
 import { User } from "../models/User.js";
+import { Schedule } from "../models/Schedule.js";
 import bcrypt from "bcryptjs";
-import crypto from "crypto";
 import generateTokenAndSetCookie from "../utils/generateTokenAndSetCookie.js";
 
 export const signup = async (req, res) => {
-  const { email, password, fistName, middleName, lastName, position } =
+  const { email, password, firstName, middleName, lastName, position } =
     req.body;
   try {
-    if (!email || !password || !name) {
+    if (!email || !password || !firstName || !lastName || !position) {
       throw new Error("All fields are required");
     }
-
     const userAlreadyExists = await User.findOne({ email });
     if (userAlreadyExists) {
       return res
@@ -22,16 +21,13 @@ export const signup = async (req, res) => {
     const user = new User({
       email,
       password: hashedPassword,
-      fistName,
+      firstName,
       middleName,
       lastName,
       position,
     });
-
-    generateTokenAndSetCookie(res, user._id);
-
+    // generateTokenAndSetCookie(res, user._id);
     await user.save();
-
     res.status(201).json({
       success: true,
       message: "User cerated successfully",
@@ -114,6 +110,82 @@ export const getAllUser = async (req, res) => {
       return res.status(404).json({ success: false, message: "No user found" });
     }
     res.status(200).json({ success: true, users });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const getUserDetail = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const user = await User.findById(id).select("-password");
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
+    }
+    res.status(200).json({
+      success: true,
+      user,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const updateUser = async (req, res) => {
+  const { id } = req.params;
+  const { email, firstName, middleName, lastName } = req.body;
+  try {
+    if (!email || !firstName || !lastName) {
+      return res
+        .status(400)
+        .json({ success: false, message: "All fields are required" });
+    }
+    const isExist = await User.findById(id);
+    if (!isExist) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
+    }
+    const updatedUser = await User.findByIdAndUpdate(id, {
+      email,
+      firstName,
+      middleName,
+      lastName,
+    });
+    res.status(200).json({
+      success: true,
+      message: "Successfully updated account",
+      user: updatedUser,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const deleteUser = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const isUserExist = await User.findById(id);
+    if (!isUserExist) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
+    }
+    const scheduleCount = await Schedule.countDocuments({ userId: id });
+    if (scheduleCount > 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Schedule data for that user account exist",
+      });
+    }
+    await User.findByIdAndDelete(id);
+
+    res.status(200).json({
+      success: true,
+      message: "User deleted successfully",
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
