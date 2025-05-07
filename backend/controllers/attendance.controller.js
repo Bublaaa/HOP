@@ -47,10 +47,20 @@ export const punchIn = async (req, res) => {
   let status = "empty";
   try {
     const clockIn = Date.now();
-    if (!scheduleId || !latitude || !longitude) {
+    if (!scheduleId) {
       return res
         .status(400)
-        .json({ success: false, message: "All fields are required" });
+        .json({ success: false, message: "Schedule id is empty" });
+    }
+    if (!latitude) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Latitude are required" });
+    }
+    if (!longitude) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Longitude are required" });
     }
     const isAlreadyExist = await Attendance.findOne({
       scheduleId: scheduleId,
@@ -158,16 +168,26 @@ export const punchOut = async (req, res) => {
 // **  UPDATE FOR ADMIN
 export const updateAttendance = async (req, res) => {
   const { id } = req.params;
-  const { scheduleId, clockIn, clockOut, report, latitude, longitude, status } =
-    req.body;
+  const {
+    scheduleId,
+    clockIn,
+    clockOut,
+    report,
+    latitudeIn,
+    longitudeIn,
+    latitudeOut,
+    longitudeOut,
+    status,
+  } = req.body;
   try {
     if (
       !scheduleId ||
       !clockIn ||
       !clockOut ||
-      !report ||
-      !latitude ||
-      !longitude ||
+      !latitudeIn ||
+      !longitudeIn ||
+      !latitudeOut ||
+      !longitudeOut ||
       !status
     ) {
       return res
@@ -179,14 +199,16 @@ export const updateAttendance = async (req, res) => {
       clockIn: clockIn,
       clockOut: clockOut,
       report: report,
-      latitude: latitude,
-      longitude: longitude,
+      latitudeIn: latitudeIn,
+      longitudeIn: longitudeIn,
+      latitudeOut: latitudeOut,
+      longitudeOut: longitudeOut,
       status: status,
     });
     res.status(200).json(
       {
         success: true,
-        message: "Success punch out",
+        message: "Success update attendance",
         attendance: updatedAttendance,
       },
       { new: true }

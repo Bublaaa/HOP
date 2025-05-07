@@ -7,10 +7,9 @@ export const signup = async (req, res) => {
   const { email, password, firstName, middleName, lastName, position } =
     req.body;
   try {
-    if (!email || !password || !firstName || !lastName) {
+    if (!email || !password || !firstName || !lastName || !position) {
       throw new Error("All fields are required");
     }
-
     const userAlreadyExists = await User.findOne({ email });
     if (userAlreadyExists) {
       return res
@@ -27,11 +26,8 @@ export const signup = async (req, res) => {
       lastName,
       position,
     });
-
-    generateTokenAndSetCookie(res, user._id);
-
+    // generateTokenAndSetCookie(res, user._id);
     await user.save();
-
     res.status(201).json({
       success: true,
       message: "User cerated successfully",

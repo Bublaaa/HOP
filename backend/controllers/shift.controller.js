@@ -1,6 +1,9 @@
 import { Shift } from "../models/Shift.js";
 import { Schedule } from "../models/Schedule.js";
 
+import { generateAttendanceSession } from "../utils/attendanceHelper.js";
+import QRCode from "qrcode";
+
 // * * GET ALL
 export const getAllShift = async (req, res) => {
   try {
@@ -138,16 +141,42 @@ export const deleteShift = async (req, res) => {
   }
 };
 
-// * * Utils Function
-const formatTime = (dateString) => {
-  const date = new Date(dateString);
-  if (isNaN(date.getTime())) {
-    return "Invalid Date";
+export const generateQrCode = async (req, res) => {
+  const API_URL =
+    process.env.NODE_ENV === "development"
+      ? "http://localhost:5002/api/"
+      : "/api/";
+  const { outpostId } = req.body;
+  try {
+    const shifts = await Shift.find().sort({ name: 1 });
+    const shiftId = generateAttendanceSession(shifts);
+    // ** THIS IS URL TO BE SEND
+    // http://localhost:5002/api/attendance/create/6817750d7585ef35a8b1c007-sore
+    // http://localhost:5002/api/attendance/6817750d7585ef35a8b1c007/68139cacf2ca72aff66a1e0e/clock-in
+    const attendanceUrl = `${API_URL}attendance/${outpostId}/${shiftId}`;
+    const qrCodeDataUrl = await QRCode.toDataURL(attendanceUrl);
+    if (!shiftId) {
+      return res.status(400).json({
+        success: false,
+        message: "No active shift found for this time.",
+      });
+    }
+    if (!qrCodeDataUrl) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Failed to generate image" });
+    }
+    res.status(200).json({
+      success: true,
+      shiftId,
+      qrCode: qrCodeDataUrl, // base64 image
+      attendanceUrl,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Failed to generate QR Code",
+      error: error.message,
+    });
   }
-
-  return date.toLocaleString("en-US", {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  });
 };

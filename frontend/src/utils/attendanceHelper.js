@@ -1,0 +1,23 @@
+import { formatDate } from "./dateFormatter";
+
+export const findScheduleId = (schedules, userId, outpostId, shiftId) => {
+  const now = new Date();
+  if (!Array.isArray(schedules)) return null;
+
+  const match = schedules.find(
+    (schedule) =>
+      schedule.outpostId == outpostId &&
+      schedule.shiftId == shiftId &&
+      schedule.userId == userId &&
+      formatDate(schedule.date) == formatDate(now)
+  );
+
+  return match ? match._id : null;
+};
+
+export const findAttendance = (attendances, scheduleId) => {
+  const match = attendances.find(
+    (attendance) => attendance.scheduleId == scheduleId
+  );
+  return match ? match : null;
+};
