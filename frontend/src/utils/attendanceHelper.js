@@ -14,3 +14,10 @@ export const findScheduleId = (schedules, userId, outpostId, shiftId) => {
 
   return match ? match._id : null;
 };
+
+export const findAttendance = (attendances, scheduleId) => {
+  const match = attendances.find(
+    (attendance) => attendance.scheduleId == scheduleId
+  );
+  return match ? match : null;
+};

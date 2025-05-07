@@ -2,41 +2,63 @@ import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { useAuthStore } from "../../../store/authStore.js";
 import { useScheduleStore } from "../../../store/scheduleStore.js";
-import { useOutpostStore } from "../../../store/outpostStore.js";
 import { useShiftStore } from "../../../store/shiftStore.js";
 import { useAttendanceStore } from "../../../store/attendanceStore.js";
 import { requestLocation } from "../../utils/location.js";
 import QrScanner from "../../components/QrScanner.jsx";
-import { toTitleCase } from "../../utils/toTitleCase.js";
-import { formatTimeToHours } from "../../utils/dateFormatter.js";
 import { getShiftStatus } from "../../utils/dateHelper.js";
 import { Loader } from "lucide-react";
 
+const ConditionalRenderElement = ({
+  locationGranted,
+  isLocating,
+  isClockedIn,
+  handleScan,
+}) => {
+  if (isLocating) {
+    return <Loader className="w-6 h-6 animate-spin mx-auto" />;
+  }
+
+  if (!isClockedIn && locationGranted === true) {
+    return <QrScanner onScanSuccess={handleScan} />;
+  }
+  if (isClockedIn) {
+    return <p>Already clock in on this schedule</p>;
+  }
+  switch (locationGranted) {
+    case null:
+      return <p>Checking location permission...</p>;
+    case false:
+      return <p>❌ Location permission is required for attendance.</p>;
+    default:
+      return <p>Checking location permission...</p>;
+  }
+};
+
 const ClockInPage = () => {
+  //** ZUSTAND
   const { user } = useAuthStore();
   const {
     schedules,
     fetchScheduleToday,
     isLoading: isScheduleLoading,
   } = useScheduleStore();
-
   const {
     attendancesByScheduleId,
     fetchScheduleAttendance,
     isLoading: isAttendanceLoading,
     handleScanClockInSuccess,
   } = useAttendanceStore();
-
   const { shifts, fetchShifts } = useShiftStore();
-  const { outposts, fetchOutposts } = useOutpostStore();
 
+  //** STATE VARIABLES
   const [isClockedIn, setIsClockedIn] = useState(false);
   const [locationGranted, setLocationGranted] = useState(null);
   const [latitude, setLatitude] = useState(0);
   const [longitude, setLongitude] = useState(0);
   const [isLocating, setIsLocating] = useState(false);
 
-  // Get location permission
+  //** GET LOCATION PERMISSION
   const checkLocationPermission = async () => {
     setIsLocating(true);
     try {
@@ -54,32 +76,36 @@ const ClockInPage = () => {
     }
   };
 
+  //** LOAD INITIAL DATA
   useEffect(() => {
     checkLocationPermission();
   }, []);
 
   useEffect(() => {
-    if (user) {
+    if (user?._id) {
       fetchScheduleToday(user._id);
-      fetchOutposts();
       fetchShifts();
     }
-  }, [user]);
+  }, [user?._id]);
 
   useEffect(() => {
     if (schedules.length) {
       schedules.forEach((schedule) => {
-        fetchScheduleAttendance(schedule._id);
+        if (!attendancesByScheduleId[schedule._id]) {
+          fetchScheduleAttendance(schedule._id);
+        }
       });
     }
   }, [schedules]);
 
   useEffect(() => {
     let clockedIn = false;
-
+    const shiftMap = Object.fromEntries(
+      shifts.map((shift) => [shift._id, shift])
+    );
     schedules.forEach((schedule) => {
       const attendance = attendancesByScheduleId[schedule._id];
-      const shift = shifts.find((shift) => shift._id === schedule.shiftId);
+      const shift = shiftMap[schedule.shiftId];
       const shiftStatus = shift
         ? getShiftStatus(shift.startTime, shift.endTime)
         : null;
@@ -88,7 +114,6 @@ const ClockInPage = () => {
         clockedIn = true;
       }
     });
-
     setIsClockedIn(clockedIn);
   }, [schedules, attendancesByScheduleId, shifts]);
 
@@ -101,36 +126,6 @@ const ClockInPage = () => {
   if (isScheduleLoading || isAttendanceLoading) {
     return <Loader className="w-6 h-6 animate-spin mx-auto" />;
   }
-
-  const ConditionalRenderElement = ({
-    locationGranted,
-    isLocating,
-    isClockedIn,
-  }) => {
-    if (isLocating) {
-      return <Loader className="w-6 h-6 animate-spin mx-auto" />;
-    }
-
-    if (
-      !isClockedIn &&
-      locationGranted === true &&
-      latitude != 0 &&
-      longitude != 0
-    ) {
-      return <QrScanner onScanSuccess={handleScan} />;
-    }
-    if (isClockedIn) {
-      return <p>Already clock in on this schedule</p>;
-    }
-    switch (locationGranted) {
-      case null:
-        return <p>Checking location permission...</p>;
-      case false:
-        return <p>❌ Location permission is required for attendance.</p>;
-      default:
-        return <p>Checking location permission...</p>;
-    }
-  };
 
   return (
     <motion.div
@@ -151,6 +146,7 @@ const ClockInPage = () => {
             isLocating={isLocating}
             isClockedIn={isClockedIn}
             locationGranted={locationGranted}
+            handleScan={handleScan}
           />
         </motion.div>
       </div>

@@ -135,13 +135,15 @@ const OverviewPage = () => {
                             );
                         }
                       })()
-                    ) : attendance.clockIn ? (
+                    ) : attendance.clockIn && !attendance.clockOut ? (
                       <Button
-                        buttonType="secondary"
+                        buttonType="primary"
                         onClick={() => navigate("/security/clock-out")}
                       >
                         Clock Out
                       </Button>
+                    ) : attendance.clockOut ? (
+                      <p>Already clocked out</p>
                     ) : (
                       "-"
                     )}
