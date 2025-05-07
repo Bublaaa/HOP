@@ -13,17 +13,21 @@ const ConditionalRenderElement = ({
   locationGranted,
   isLocating,
   isClockedIn,
+  activeStatus,
   handleScan,
 }) => {
   if (isLocating) {
     return <Loader className="w-6 h-6 animate-spin mx-auto" />;
   }
-
-  if (!isClockedIn && locationGranted === true) {
-    return <QrScanner onScanSuccess={handleScan} />;
+  if (!activeStatus) {
+    return <p>There is no ongoing schedule.</p>;
   }
   if (isClockedIn) {
     return <p>Already clock in on this schedule</p>;
+  }
+
+  if (!isClockedIn && locationGranted === true && activeStatus) {
+    return <QrScanner onScanSuccess={handleScan} />;
   }
   switch (locationGranted) {
     case null:
@@ -53,6 +57,7 @@ const ClockInPage = () => {
 
   //** STATE VARIABLES
   const [isClockedIn, setIsClockedIn] = useState(false);
+  const [activeStatus, setActiveStatus] = useState(false);
   const [locationGranted, setLocationGranted] = useState(null);
   const [latitude, setLatitude] = useState(0);
   const [longitude, setLongitude] = useState(0);
@@ -99,22 +104,28 @@ const ClockInPage = () => {
   }, [schedules]);
 
   useEffect(() => {
-    let clockedIn = false;
-    const shiftMap = Object.fromEntries(
-      shifts.map((shift) => [shift._id, shift])
-    );
+    let ongoing = false;
+    let alreadyClockedIn = false;
+
+    const shiftMap = Object.fromEntries(shifts.map((s) => [s._id, s]));
+
     schedules.forEach((schedule) => {
-      const attendance = attendancesByScheduleId[schedule._id];
       const shift = shiftMap[schedule.shiftId];
+      const attendance = attendancesByScheduleId[schedule._id];
       const shiftStatus = shift
         ? getShiftStatus(shift.startTime, shift.endTime)
         : null;
 
-      if (shiftStatus === "ongoing" && attendance?.clockIn) {
-        clockedIn = true;
+      if (shiftStatus === "ongoing") {
+        ongoing = true;
+        if (attendance?.clockIn) {
+          alreadyClockedIn = true;
+        }
       }
     });
-    setIsClockedIn(clockedIn);
+
+    setActiveStatus(ongoing);
+    setIsClockedIn(alreadyClockedIn);
   }, [schedules, attendancesByScheduleId, shifts]);
 
   const handleScan = (data) => {
@@ -145,6 +156,7 @@ const ClockInPage = () => {
           <ConditionalRenderElement
             isLocating={isLocating}
             isClockedIn={isClockedIn}
+            activeStatus={activeStatus}
             locationGranted={locationGranted}
             handleScan={handleScan}
           />

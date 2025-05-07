@@ -20,18 +20,23 @@ const ConditionalRenderElement = ({
   showScanner,
   setShowScanner,
   setReport,
+  activeStatus,
   handleScan,
 }) => {
   const [inputValue, setInputValue] = useState("");
 
-  // 1. Show loader if locating
   if (isLocating) {
     return <Loader className="w-6 h-6 animate-spin mx-auto" />;
   }
-  if (isClockedOut) {
-    return <p>You have already clocked out</p>;
+
+  if (!activeStatus) {
+    return <p>There is no ongoing schedule.</p>;
   }
-  // 2. If user is not clocked in
+
+  if (isClockedOut) {
+    return <p>You have already clocked out.</p>;
+  }
+
   if (!isClockedIn) {
     return (
       <div className="flex flex-row justify-between items-center">
@@ -45,13 +50,11 @@ const ConditionalRenderElement = ({
     );
   }
 
-  // 3. Show QR scanner if activated
-  if (showScanner && report !== "") {
+  if (showScanner && inputValue.trim() !== "") {
     return <QrScanner onScanSuccess={handleScan} />;
   }
 
-  // 4. If location is granted and clocked in, show input
-  if (locationGranted === true && !isClockedOut) {
+  if (locationGranted === true) {
     return (
       <div className="space-y-2">
         <TextareaInput
@@ -76,7 +79,6 @@ const ConditionalRenderElement = ({
     );
   }
 
-  // 5. Location fallback messages
   if (locationGranted === false) {
     return <p>❌ Location permission is required for attendance.</p>;
   }
@@ -85,7 +87,6 @@ const ConditionalRenderElement = ({
 };
 
 const ClockOutPage = () => {
-  //** ZUSTAND
   const { user } = useAuthStore();
   const {
     schedules,
@@ -100,17 +101,16 @@ const ClockOutPage = () => {
   } = useAttendanceStore();
   const { shifts, fetchShifts } = useShiftStore();
 
-  //** STATE VARIABLES
   const [report, setReport] = useState("");
   const [showScanner, setShowScanner] = useState(false);
   const [isClockedIn, setIsClockedIn] = useState(false);
   const [isClockedOut, setIsClockedOut] = useState(false);
   const [locationGranted, setLocationGranted] = useState(null);
+  const [activeStatus, setActiveStatus] = useState(false);
   const [latitude, setLatitude] = useState(0);
   const [longitude, setLongitude] = useState(0);
   const [isLocating, setIsLocating] = useState(false);
 
-  //** GET LOCATION PERMISSSION
   const checkLocationPermission = async () => {
     setIsLocating(true);
     try {
@@ -128,7 +128,6 @@ const ClockOutPage = () => {
     }
   };
 
-  //** LOAD INITIAL DATA
   useEffect(() => {
     checkLocationPermission();
   }, []);
@@ -151,11 +150,14 @@ const ClockOutPage = () => {
   }, [schedules]);
 
   useEffect(() => {
+    let ongoing = false;
     let clockedIn = false;
     let clockedOut = false;
+
     const shiftMap = Object.fromEntries(
       shifts.map((shift) => [shift._id, shift])
     );
+
     schedules.forEach((schedule) => {
       const attendance = attendancesByScheduleId[schedule._id];
       const shift = shiftMap[schedule.shiftId];
@@ -163,26 +165,28 @@ const ClockOutPage = () => {
         ? getShiftStatus(shift.startTime, shift.endTime)
         : null;
 
-      if (shiftStatus === "ongoing" && attendance?.clockIn) {
-        clockedIn = true;
-      }
-      if (shiftStatus === "ongoing" && attendance?.clockOut) {
-        clockedOut = true;
+      if (shiftStatus === "ongoing") {
+        ongoing = true;
+        if (attendance?.clockIn) {
+          clockedIn = true;
+        }
+        if (attendance?.clockOut) {
+          clockedOut = true;
+        }
       }
     });
 
+    setActiveStatus(ongoing);
     setIsClockedIn(clockedIn);
     setIsClockedOut(clockedOut);
   }, [schedules, attendancesByScheduleId, shifts]);
 
-  //** HANDLING SCAN
   const handleScan = (data) => {
-    if (data && report !== "") {
+    if (data && report.trim() !== "") {
       handleScanClockOutSuccess(data, user._id, latitude, longitude, report);
     }
   };
 
-  //** EXCEPTION IS LOADING DATA
   if (isScheduleLoading || isAttendanceLoading) {
     return <Loader className="w-6 h-6 animate-spin mx-auto" />;
   }
@@ -210,6 +214,7 @@ const ClockOutPage = () => {
             showScanner={showScanner}
             setShowScanner={setShowScanner}
             setReport={setReport}
+            activeStatus={activeStatus}
             handleScan={handleScan}
           />
         </motion.div>
