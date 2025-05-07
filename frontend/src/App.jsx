@@ -355,16 +355,7 @@ function App() {
           }
         />
         {/* catch all routes */}
-        <Route
-          path="*"
-          element={
-            <div className="text-center mt-10 text-xl font-semibold">
-              404 - Page Not Found
-            </div>
-          }
-        />
-
-        {/* <Route path="*" element={<Navigate to="/login" replace />} /> */}
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
       <Toaster />
     </div>
