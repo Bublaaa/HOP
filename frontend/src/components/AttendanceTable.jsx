@@ -27,7 +27,7 @@ const AttendanceTable = ({
   };
 
   return (
-    <div className="overflow-x-auto rounded-lg shadow-md">
+    <div className="overflow-x-auto rounded-lg shadow-md scrollbar-hidden">
       <table className="table w-full text-sm">
         <thead className="bg-accent text-white">
           <tr>
@@ -78,7 +78,7 @@ const AttendanceTable = ({
                 return (
                   <td
                     key={date.toISOString()}
-                    className="p-2 text-center hover:bg-gray-200 hover:cursor-pointer"
+                    className="p-2 min-w-[100px] text-center hover:bg-gray-200 hover:cursor-pointer"
                     data-navigate={url || undefined}
                   >
                     {attendance ? (

@@ -7,9 +7,9 @@ const SecurityDashboard = () => {
   const { user } = useAuthStore();
   const links = sidebarLinks[user?.position] || [];
   return (
-    <div className="w-full flex flex-col space-y-5 h-screen items-end">
+    <div className="w-full h-full flex flex-col space-y-5 h-screen items-end justify-end">
       {/* CONTENT */}
-      <div className="flex items-start justify-center w-full overflow-y-auto scrollbar-hidden py-10 ">
+      <div className="flex items-start justify-center w-full overflow-y-auto scrollbar-hidden py-10">
         <Outlet />
       </div>
       {/* NAVIGATION */}
