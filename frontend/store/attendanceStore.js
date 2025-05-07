@@ -124,8 +124,10 @@ export const useAttendanceStore = create((set, get) => {
       clockIn,
       clockOut,
       report,
-      latitude,
-      longitude,
+      latitudeIn,
+      longitudeIn,
+      latitudeOut,
+      longitudeOut,
       status
     ) => {
       set({ isLoading: true, error: null });
@@ -135,8 +137,10 @@ export const useAttendanceStore = create((set, get) => {
           clockIn,
           clockOut,
           report,
-          latitude,
-          longitude,
+          latitudeIn,
+          longitudeIn,
+          latitudeOut,
+          longitudeOut,
           status,
         });
         set({ attendance: response.data.attendance, isLoading: false });

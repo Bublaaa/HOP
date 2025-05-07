@@ -11,10 +11,10 @@ const sidebarLinks = {
   ],
   admin: [
     { label: "Schedule", icon: "CalendarSync", href: "/admin/schedules" },
+    { label: "Attendance", icon: "BookUser", href: "/admin/attendances" },
     { label: "Users", icon: "Users", href: "/admin/users" },
     { label: "Outpost", icon: "House", href: "/admin/outposts" },
     { label: "Shift", icon: "Clock", href: "/admin/shifts" },
-    { label: "Attendance", icon: "BookUser", href: "/admin/attendances" },
   ],
 };
 

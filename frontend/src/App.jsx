@@ -50,6 +50,12 @@ const ScheduleDetailPage = lazy(() =>
 const CreateSingleSchedulePage = lazy(() =>
   import("./pages/admin.pages/CreateSingleSchedulePage.jsx")
 );
+const AttendancesPage = lazy(() =>
+  import("./pages/admin.pages/AttendancesPage.jsx")
+);
+const AttendanceDetailPage = lazy(() =>
+  import("./pages/admin.pages/AttendanceDetailPage.jsx")
+);
 
 const QrCodePage = lazy(() => import("./pages/outpost.pages/QrCodePage.jsx"));
 const SchedulesOutpostPage = lazy(() =>
@@ -242,6 +248,22 @@ function App() {
             element={
               <Suspense>
                 <ScheduleDetailPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="attendances"
+            element={
+              <Suspense>
+                <AttendancesPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="attendance/:id"
+            element={
+              <Suspense>
+                <AttendanceDetailPage />
               </Suspense>
             }
           />
