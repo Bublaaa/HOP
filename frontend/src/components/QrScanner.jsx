@@ -22,31 +22,30 @@ const QrScanner = ({ onScanSuccess }) => {
         }
 
         isScanning.current = true;
-
+        const camera =
+          cameras.find(
+            (cam) =>
+              cam.label.toLowerCase().includes("back") ||
+              cam.label.toLowerCase().includes("environment")
+          ) || cameras[0];
         await scannerRef.current.start(
-          cameras[0].id,
+          camera.id,
+
           { fps: 10, qrbox: { width: 250, height: 250 } },
           async (decodedText) => {
             if (isDebounced) return;
             setIsDebounced(true);
-
             await stopScanner();
             onScanSuccess?.(decodedText);
             navigate("/", { replace: true });
-
             setTimeout(() => {
               window.location.reload();
             }, 5000);
-
-            // Set debounce timeout (e.g., 5 seconds)
-            // setTimeout(() => {
-            //   setIsDebounced(false);
-            //   startScanner();
-            // }, 1000 * 5);
           },
           async (errorMessage) => {
             console.warn("QR Scan Error:", errorMessage);
             // await stopScanner();
+            console.log(cameras);
           }
         );
       } catch (error) {
