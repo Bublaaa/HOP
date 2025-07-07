@@ -354,6 +354,14 @@ function App() {
             </RedirectAuthenticatedUser>
           }
         />
+        {/* <Route
+            path="signup"
+            element={
+              <Suspense>
+                <SignUpPage />
+              </Suspense>
+            }
+          /> */}
         {/* catch all routes */}
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>

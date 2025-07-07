@@ -43,7 +43,7 @@ const OutpostsPage = ({}) => {
     }
   };
   return (
-    <div className="flex max-w-md w-full flex-col gap-2 mx-2">
+    <div className="flex max-w-md w-full flex-col gap-2 md:gap-5 mx-2">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -63,7 +63,7 @@ const OutpostsPage = ({}) => {
         title={modalState.title}
         body={modalState.body}
       />
-      <div className="space-y-2" onClick={(e) => handleDeleteAction(e)}>
+      <div className="space-y-2 md:space-y-5" onClick={(e) => handleDeleteAction(e)}>
         {outposts.map((outpost, index) => {
           return (
             <motion.div

@@ -80,12 +80,12 @@ const AttendancesPage = () => {
   }
 
   return (
-    <div className="flex max-w-6xl w-full flex-col gap-2 mx-2">
+    <div className="flex max-w-6xl w-full flex-col gap-2 md:gap-5 gap-2 px-2 md:px-2">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="flex flex-row w-full items-center p-4 bg-white rounded-lg justify-between"
+        className="flex flex-row w-fill items-center p-4 bg-white rounded-lg justify-between"
       >
         <h6>Manage Attendances</h6>
       </motion.div>
@@ -109,7 +109,7 @@ const AttendancesPage = () => {
 
       {/* Attendance Tables */}
       {memoizedUsers.length > 0 && selectedOutpost && (
-        <div className="space-y-2">
+        <div className="md:space-y-5 space-y-2">
           <AttendanceTable
             key={`first-${selectedOutpost._id}`}
             selectedOutpost={selectedOutpost}

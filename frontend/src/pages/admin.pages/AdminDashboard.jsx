@@ -7,9 +7,9 @@ const AdminDashboard = () => {
   const { user } = useAuthStore();
   const links = sidebarLinks[user?.position] || [];
   return (
-    <div className="w-full flex flex-col space-y-5 h-screen items-end">
+    <div className="w-full flex flex-col h-screen items-end">
       {/* CONTENT */}
-      <div className="flex justify-center items-end w-full h-full overflow-y-auto scrollbar-hidden py-10">
+      <div className="flex justify-center items-end w-full h-full overflow-y-auto scrollbar-hidden pb-10">
         <Outlet />
       </div>
       {/* NAVIGATION */}

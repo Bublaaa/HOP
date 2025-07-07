@@ -47,7 +47,7 @@ const ShiftsPage = ({}) => {
     return <Loader className="w-6h-6 animate-spin mx-auto" />;
   }
   return (
-    <div className="flex max-w-md w-full flex-col gap-2 mx-2">
+    <div className="flex max-w-md w-full flex-col gap-2 md:gap-5 mx-2">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -67,7 +67,7 @@ const ShiftsPage = ({}) => {
         title={modalState.title}
         body={modalState.body}
       />
-      <div className="space-y-2" onClick={(e) => handleDeleteAction(e)}>
+      <div className="space-y-2 md:space-y-5" onClick={(e) => handleDeleteAction(e)}>
         {shifts.map((shift, index) => {
           return (
             <motion.div

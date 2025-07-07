@@ -61,7 +61,7 @@ const SchedulesPage = ({}) => {
     return <Loader className="w-6 h-6 animate-spin mx-auto" />;
   }
   return (
-    <div className="flex max-w-6xl w-full flex-col gap-2 mx-2">
+    <div className="flex max-w-6xl w-full flex-col gap-5 px-2 md:px-2">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -93,7 +93,7 @@ const SchedulesPage = ({}) => {
         })}
       </div>
 
-      <div className="space-y-2">
+      <div className="md:space-y-5 space-y-2">
         <ScheduleTable
           selectedOutpost={selectedOutpost}
           users={users}
